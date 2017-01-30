@@ -1,15 +1,21 @@
 defmodule RedditClone.Factory do
   use ExMachina.Ecto, repo: RedditClone.Repo
-  use Comeonin.Bcrypt
 
   def user_factory do
     %RedditClone.User{
       username: "test_user",
-      encrypted_password: hashpwsalt("pass1234"),
+      encrypted_password: Comeonin.Bcrypt.hashpwsalt("pass1234"),
     }
   end
 
-  def post_url_factory do
+  def user2_factory do
+    %RedditClone.User{
+      username: "test_user_2",
+      encrypted_password: Comeonin.Bcrypt.hashpwsalt("pass1234"),
+    }
+  end
+
+  def post_with_url_factory do
     %RedditClone.Post{
       title: "Title of post with url",
       text: nil,
@@ -18,7 +24,7 @@ defmodule RedditClone.Factory do
     }
   end
 
-  def post_text_factory do
+  def post_with_text_factory do
     %RedditClone.Post{
       title: "Title of post with text",
       text: "Post text",
@@ -31,7 +37,7 @@ defmodule RedditClone.Factory do
     %RedditClone.Comment{
       text: "A comment",
       user: build(:user),
-      post: build(:post_url),
+      post: build(:post_with_url),
     }
   end
 end

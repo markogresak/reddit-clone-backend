@@ -6,7 +6,7 @@ defmodule RedditClone.Post do
     field :text, :string
     field :url, :string
     belongs_to :user, RedditClone.User
-    has_many :comment, RedditClone.Commet
+    has_many :comment, RedditClone.Comment
 
     timestamps()
   end
@@ -16,7 +16,8 @@ defmodule RedditClone.Post do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:title, :text, :url])
-    |> validate_required([:title, :text, :url])
+    |> cast(params, [:title])
+    |> validate_required([:title])
+    |> validate_length(:title, min: 1)
   end
 end

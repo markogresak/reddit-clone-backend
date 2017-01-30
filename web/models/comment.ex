@@ -16,5 +16,6 @@ defmodule RedditClone.Comment do
     struct
     |> cast(params, [:text])
     |> validate_required([:text])
+    |> validate_length(:text, min: 1)
   end
 end

@@ -24,7 +24,7 @@ defmodule RedditClone.ConnCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Todos.Factory
+      import RedditClone.Factory
 
       import RedditClone.Router.Helpers
 
