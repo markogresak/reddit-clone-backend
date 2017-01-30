@@ -3,9 +3,9 @@ defmodule RedditClone.CommentController do
 
   alias RedditClone.Comment
 
-  def index(conn, _params) do
-    comments = Repo.all(Comment)
-    render(conn, "index.json", comments: comments)
+  def show(conn, %{"id" => id}) do
+    comment = Repo.get!(Comment, id)
+    render(conn, "show.json", comment: comment)
   end
 
   def create(conn, %{"comment" => comment_params}) do
@@ -22,11 +22,6 @@ defmodule RedditClone.CommentController do
         |> put_status(:unprocessable_entity)
         |> render(RedditClone.ChangesetView, "error.json", changeset: changeset)
     end
-  end
-
-  def show(conn, %{"id" => id}) do
-    comment = Repo.get!(Comment, id)
-    render(conn, "show.json", comment: comment)
   end
 
   def update(conn, %{"id" => id, "comment" => comment_params}) do

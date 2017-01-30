@@ -9,11 +9,6 @@ defmodule RedditClone.CommentControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  test "lists all entries on index", %{conn: conn} do
-    conn = get conn, comment_path(conn, :index)
-    assert json_response(conn, 200)["data"] == []
-  end
-
   test "shows chosen resource", %{conn: conn} do
     post_user = insert(:user)
     comment_user = insert(:user2)
@@ -24,12 +19,6 @@ defmodule RedditClone.CommentControllerTest do
       "text" => comment.text,
       "user_id" => comment.user_id,
       "post_id" => comment.post_id}
-  end
-
-  test "renders page not found when id is nonexistent", %{conn: conn} do
-    assert_error_sent 404, fn ->
-      get conn, comment_path(conn, :show, -1)
-    end
   end
 
   test "creates and renders resource when data is valid", %{conn: conn} do

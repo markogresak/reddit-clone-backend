@@ -3,11 +3,6 @@ defmodule RedditClone.UserController do
 
   alias RedditClone.User
 
-  def index(conn, _params) do
-    users = Repo.all(User)
-    render(conn, "index.json", users: users)
-  end
-
   def create(conn, %{"user" => user_params}) do
     changeset = User.registration_changeset(%User{}, user_params)
 
