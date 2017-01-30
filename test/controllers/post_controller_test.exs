@@ -7,6 +7,10 @@ defmodule RedditClone.PostControllerTest do
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    user = insert(:user_login)
+    auth_conn = Guardian.Plug.api_sign_in(conn, user)
+    jwt = Guardian.Plug.current_token(auth_conn)
+    {:ok, %{conn: conn, auth_conn: auth_conn, jwt: jwt}}
   end
 
   test "lists all entries on index", %{conn: conn} do
@@ -71,18 +75,18 @@ defmodule RedditClone.PostControllerTest do
     end
   end
 
-  test "creates and renders resource when data is valid", %{conn: conn} do
+  test "creates and renders resource when data is valid", %{auth_conn: conn} do
     conn = post conn, post_path(conn, :create), post: @valid_attrs
     assert json_response(conn, 201)["data"]["id"]
     assert Repo.get_by(Post, title: @valid_attrs.title)
   end
 
-  test "does not create resource and renders errors when data is invalid", %{conn: conn} do
+  test "does not create resource and renders errors when data is invalid", %{auth_conn: conn} do
     conn = post conn, post_path(conn, :create), post: @invalid_attrs
     assert json_response(conn, 422)["errors"] != %{}
   end
 
-  test "updates and renders chosen resource when data is valid", %{conn: conn} do
+  test "updates and renders chosen resource when data is valid", %{auth_conn: conn} do
     user = insert(:user)
     post = insert(:post_with_url, user: user)
     conn = put conn, post_path(conn, :update, post), post: @valid_attrs
@@ -90,14 +94,14 @@ defmodule RedditClone.PostControllerTest do
     assert Repo.get_by(Post, title: @valid_attrs.title)
   end
 
-  test "does not update chosen resource and renders errors when data is invalid", %{conn: conn} do
+  test "does not update chosen resource and renders errors when data is invalid", %{auth_conn: conn} do
     user = insert(:user)
     post = insert(:post_with_url, user: user)
     conn = put conn, post_path(conn, :update, post), post: @invalid_attrs
     assert json_response(conn, 422)["errors"] != %{}
   end
 
-  test "deletes chosen resource", %{conn: conn} do
+  test "deletes chosen resource", %{auth_conn: conn} do
     user = insert(:user)
     post = insert(:post_with_url, user: user)
     conn = delete conn, post_path(conn, :delete, post)

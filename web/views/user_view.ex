@@ -17,4 +17,20 @@ defmodule RedditClone.UserView do
       posts: render_many(user.posts, RedditClone.PostView, "post-shallow.json")
     }
   end
+
+  def render("login.json", %{user: user, jwt: jwt, exp: exp}) do
+    %{
+      data: %{
+        user: render_one(user, RedditClone.UserView, "user.json"),
+        jwt: jwt,
+        exp: exp
+      }
+    }
+  end
+
+  def render("error.json", %{message: message}) do
+    %{
+      error: %{message: message}
+    }
+  end
 end

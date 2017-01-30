@@ -15,6 +15,13 @@ defmodule RedditClone.Factory do
     }
   end
 
+  def user_login_factory do
+    %RedditClone.User{
+      username: "user_login",
+      encrypted_password: Comeonin.Bcrypt.hashpwsalt("pass123"),
+    }
+  end
+
   def post_with_url_factory do
     %RedditClone.Post{
       title: "Title of post with url",

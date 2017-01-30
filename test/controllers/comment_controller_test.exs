@@ -7,6 +7,10 @@ defmodule RedditClone.CommentControllerTest do
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    user = insert(:user_login)
+    auth_conn = Guardian.Plug.api_sign_in(conn, user)
+    jwt = Guardian.Plug.current_token(auth_conn)
+    {:ok, %{conn: conn, auth_conn: auth_conn, jwt: jwt}}
   end
 
   test "shows chosen resource", %{conn: conn} do
@@ -23,18 +27,18 @@ defmodule RedditClone.CommentControllerTest do
     }
   end
 
-  test "creates and renders resource when data is valid", %{conn: conn} do
+  test "creates and renders resource when data is valid", %{auth_conn: conn} do
     conn = post conn, comment_path(conn, :create), comment: @valid_attrs
     assert json_response(conn, 201)["data"]["id"]
     assert Repo.get_by(Comment, @valid_attrs)
   end
 
-  test "does not create resource and renders errors when data is invalid", %{conn: conn} do
+  test "does not create resource and renders errors when data is invalid", %{auth_conn: conn} do
     conn = post conn, comment_path(conn, :create), comment: @invalid_attrs
     assert json_response(conn, 422)["errors"] != %{}
   end
 
-  test "updates and renders chosen resource when data is valid", %{conn: conn} do
+  test "updates and renders chosen resource when data is valid", %{auth_conn: conn} do
     post_user = insert(:user)
     comment_user = insert(:user2)
     post = insert(:post_with_url, user: post_user)
@@ -44,7 +48,7 @@ defmodule RedditClone.CommentControllerTest do
     assert Repo.get_by(Comment, @valid_attrs)
   end
 
-  test "does not update chosen resource and renders errors when data is invalid", %{conn: conn} do
+  test "does not update chosen resource and renders errors when data is invalid", %{auth_conn: conn} do
     post_user = insert(:user)
     comment_user = insert(:user2)
     post = insert(:post_with_url, user: post_user)
@@ -53,7 +57,7 @@ defmodule RedditClone.CommentControllerTest do
     assert json_response(conn, 422)["errors"] != %{}
   end
 
-  test "deletes chosen resource", %{conn: conn} do
+  test "deletes chosen resource", %{auth_conn: conn} do
     post_user = insert(:user)
     comment_user = insert(:user2)
     post = insert(:post_with_url, user: post_user)

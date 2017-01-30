@@ -21,6 +21,21 @@ defmodule RedditClone.User do
     |> RedditClone.Repo.preload([:comments])
   end
 
+  def find_and_confirm_password(params) do
+    changeset = registration_changeset(%RedditClone.User{}, params)
+
+    if changeset.valid? do
+      %{username: username, password: password} = changeset.changes
+      user = RedditClone.Repo.get_by(RedditClone.User, username: username)
+      if Comeonin.Bcrypt.checkpw(password, user.encrypted_password) do
+        {:ok, user}
+      else
+        {:error, %{}}
+      end
+    end
+
+  end
+
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
