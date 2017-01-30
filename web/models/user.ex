@@ -5,10 +5,20 @@ defmodule RedditClone.User do
     field :username, :string
     field :encrypted_password, :string
     field :password, :string, virtual: true
-    has_many :post, RedditClone.Post
-    has_many :comment, RedditClone.Comment
+    has_many :posts, RedditClone.Post
+    has_many :comments, RedditClone.Comment
 
     timestamps()
+  end
+
+  def with_posts(user) do
+    user
+    |> RedditClone.Repo.preload([:posts])
+  end
+
+  def with_comments(user) do
+    user
+    |> RedditClone.Repo.preload([:comments])
   end
 
   @doc """

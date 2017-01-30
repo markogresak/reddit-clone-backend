@@ -15,10 +15,12 @@ defmodule RedditClone.CommentControllerTest do
     post = insert(:post_with_url, user: post_user)
     comment = insert(:comment, user: comment_user, post: post)
     conn = get conn, comment_path(conn, :show, comment)
-    assert json_response(conn, 200)["data"] == %{"id" => comment.id,
+    assert json_response(conn, 200)["data"] == %{
+      "id" => comment.id,
       "text" => comment.text,
       "user_id" => comment.user_id,
-      "post_id" => comment.post_id}
+      "post_id" => comment.post_id,
+    }
   end
 
   test "creates and renders resource when data is valid", %{conn: conn} do

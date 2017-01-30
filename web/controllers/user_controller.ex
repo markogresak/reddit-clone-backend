@@ -11,7 +11,7 @@ defmodule RedditClone.UserController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", user_path(conn, :show, user))
-        |> render("show.json", user: user)
+        |> render("show.json", user: preload_user_relations(user))
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -21,7 +21,7 @@ defmodule RedditClone.UserController do
 
   def show(conn, %{"id" => id}) do
     user = Repo.get!(User, id)
-    render(conn, "show.json", user: user)
+    render(conn, "show.json", user: preload_user_relations(user))
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
@@ -30,7 +30,7 @@ defmodule RedditClone.UserController do
 
     case Repo.update(changeset) do
       {:ok, user} ->
-        render(conn, "show.json", user: user)
+        render(conn, "show.json", user: preload_user_relations(user))
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -46,5 +46,11 @@ defmodule RedditClone.UserController do
     Repo.delete!(user)
 
     send_resp(conn, :no_content, "")
+  end
+
+  defp preload_user_relations(user) do
+    user
+    |> User.with_posts
+    |> User.with_comments
   end
 end

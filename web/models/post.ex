@@ -6,9 +6,14 @@ defmodule RedditClone.Post do
     field :text, :string
     field :url, :string
     belongs_to :user, RedditClone.User
-    has_many :comment, RedditClone.Comment
+    has_many :comments, RedditClone.Comment
 
     timestamps()
+  end
+
+  def with_comments(post) do
+    post
+    |> RedditClone.Repo.preload([:comments])
   end
 
   @doc """

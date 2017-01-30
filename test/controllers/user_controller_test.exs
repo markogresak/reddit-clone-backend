@@ -9,11 +9,63 @@ defmodule RedditClone.UserControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  test "shows chosen resource", %{conn: conn} do
+  test "shows chosen user", %{conn: conn} do
     user = insert(:user)
     conn = get conn, user_path(conn, :show, user)
-    assert json_response(conn, 200)["data"] == %{"id" => user.id,
-      "username" => user.username}
+    assert json_response(conn, 200)["data"] == %{
+      "id" => user.id,
+      "username" => user.username,
+      "posts" => [],
+      "comments" => []
+    }
+  end
+
+  test "shows chosen user who has added a post", %{conn: conn} do
+    user = insert(:user)
+    post = insert(:post_with_text, user: user)
+    conn = get conn, user_path(conn, :show, user)
+    assert json_response(conn, 200)["data"] == %{
+      "id" => user.id,
+      "username" => user.username,
+      "posts" => [
+        %{
+          "id" => post.id,
+          "title" => post.title,
+          "text" => post.text,
+          "url" => post.url,
+          "user_id" => post.user_id,
+        }
+      ],
+      "comments" => []
+    }
+  end
+
+  test "shows chosen user who has added a post and commented", %{conn: conn} do
+    user = insert(:user)
+    post = insert(:post_with_text, user: user)
+    comment = insert(:comment, user: user, post: post)
+    conn = get conn, user_path(conn, :show, user)
+    assert json_response(conn, 200)["data"] == %{
+      "id" => user.id,
+      "username" => user.username,
+      "posts" => [
+        %{
+          "id" => post.id,
+          "title" => post.title,
+          "text" => post.text,
+          "url" => post.url,
+          "user_id" => post.user_id,
+        }
+      ],
+      "comments" => [
+        %{
+          "id" => comment.id,
+          "text" => comment.text,
+          "user_id" => comment.user_id,
+          "post_id" => comment.post_id,
+        }
+      ]
+    }
   end
 
   test "renders page not found when id is nonexistent", %{conn: conn} do

@@ -14,26 +14,55 @@ defmodule RedditClone.PostControllerTest do
     assert json_response(conn, 200)["data"] == []
   end
 
-  test "shows post with url, where text is nil", %{conn: conn} do
-    user = insert(:user)
-    post = insert(:post_with_url, user: user)
-    conn = get conn, post_path(conn, :show, post)
-    assert json_response(conn, 200)["data"] == %{"id" => post.id,
-      "title" => post.title,
-      "text" => nil,
-      "url" => post.url,
-      "user_id" => post.user_id}
-  end
-
-  test "shows post with text, where url is nil", %{conn: conn} do
+  test "shows post with text", %{conn: conn} do
     user = insert(:user)
     post = insert(:post_with_text, user: user)
     conn = get conn, post_path(conn, :show, post)
-    assert json_response(conn, 200)["data"] == %{"id" => post.id,
+    assert json_response(conn, 200)["data"] == %{
+      "id" => post.id,
       "title" => post.title,
       "text" => post.text,
       "url" => nil,
-      "user_id" => post.user_id}
+      "user_id" => post.user_id,
+      "comments" => []
+    }
+  end
+
+  test "shows post with url", %{conn: conn} do
+    user = insert(:user)
+    post = insert(:post_with_url, user: user)
+    conn = get conn, post_path(conn, :show, post)
+    assert json_response(conn, 200)["data"] == %{
+      "id" => post.id,
+      "title" => post.title,
+      "text" => nil,
+      "url" => post.url,
+      "user_id" => post.user_id,
+      "comments" => []
+    }
+  end
+
+  test "shows post with a comment", %{conn: conn} do
+    post_user = insert(:user)
+    comment_user = insert(:user2)
+    post = insert(:post_with_url, user: post_user)
+    comment = insert(:comment, user: comment_user, post: post)
+    conn = get conn, post_path(conn, :show, post)
+    assert json_response(conn, 200)["data"] == %{
+      "id" => post.id,
+      "title" => post.title,
+      "text" => nil,
+      "url" => post.url,
+      "user_id" => post.user_id,
+      "comments" => [
+        %{
+          "id" => comment.id,
+          "text" => comment.text,
+          "user_id" => comment.user_id,
+          "post_id" => comment.post_id,
+        }
+      ]
+    }
   end
 
   test "renders page not found when id is nonexistent", %{conn: conn} do
