@@ -29,7 +29,7 @@ config :guardian, Guardian,
   ttl: { 30, :days },
   allowed_drift: 2000,
   verify_issuer: true,
-  secret_key: "6g9NaWbJSrr8aFTQUW2819XoK9I4HMZUdZARxJu0yJqH+4nvm70OQAzzEM7xMYab",
+  secret_key: System.get_env("GUARDIAN_KEY") || "6g9NaWbJSrr8aFTQUW2819XoK9I4HMZUdZARxJu0yJqH+4nvm70OQAzzEM7xMYab",
   serializer: RedditClone.GuardianSerializer
 
 # Import environment specific config. This must remain at the bottom
