@@ -39,6 +39,7 @@ defmodule RedditClone.Mixfile do
      {:comeonin, "~> 3.0"},
      {:ex_machina, "~> 1.0", only: :test},
      {:guardian, "~> 0.14"},
+     {:elixilorem, "~> 0.0.1"},
    ]
   end
 
