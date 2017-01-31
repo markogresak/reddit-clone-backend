@@ -3,7 +3,7 @@ defmodule RedditClone.Repo.Migrations.CreateComment do
 
   def change do
     create table(:comments) do
-      add :text, :string, null: false
+      add :text, :text, null: false
       add :user_id, references(:users, on_delete: :nothing)
       add :post_id, references(:posts, on_delete: :nothing)
 
