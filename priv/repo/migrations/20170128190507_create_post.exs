@@ -6,7 +6,7 @@ defmodule RedditClone.Repo.Migrations.CreatePost do
       add :title, :string, null: false
       add :text, :text
       add :url, :text
-      add :user_id, references(:users, on_delete: :nothing)
+      add :user_id, references(:users, on_delete: :delete_all)
 
       timestamps()
     end
