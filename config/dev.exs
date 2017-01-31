@@ -29,3 +29,12 @@ config :reddit_clone, RedditClone.Repo,
   database: "reddit_clone_dev",
   hostname: "localhost",
   pool_size: 10
+
+# Configure your database
+config :reddit_clone, RedditClone.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  username: "postgres",
+  password: "postgres",
+  database: "reddit_clone_dev",
+  hostname: "localhost",
+  pool_size: 10

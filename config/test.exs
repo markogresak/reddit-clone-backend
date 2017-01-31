@@ -21,3 +21,12 @@ config :reddit_clone, RedditClone.Repo,
 # for faster encryption (only in test env)
 config :comeonin, :bcrypt_log_rounds, 4
 config :comeonin, :pbkdf2_rounds, 1
+
+# Configure your database
+config :reddit_clone, RedditClone.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  username: "postgres",
+  password: "postgres",
+  database: "reddit_clone_test",
+  hostname: "localhost",
+  pool: Ecto.Adapters.SQL.Sandbox
