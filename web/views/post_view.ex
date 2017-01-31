@@ -2,7 +2,7 @@ defmodule RedditClone.PostView do
   use RedditClone.Web, :view
 
   def render("index.json", %{posts: posts}) do
-    %{data: render_many(posts, RedditClone.PostView, "post.json")}
+    %{data: render_many(posts, RedditClone.PostView, "post-shallow.json")}
   end
 
   def render("show.json", %{post: post}) do
@@ -13,9 +13,9 @@ defmodule RedditClone.PostView do
     %{
       id: post.id,
       title: post.title,
-      text: post.text,
       url: post.url,
       user_id: post.user_id,
+      comment_count: Enum.count(post.comments),
     }
   end
 
