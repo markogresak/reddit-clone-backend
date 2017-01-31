@@ -11,6 +11,15 @@
 # and so on) as they will fail if something goes wrong.
 
 
+defmodule Lorem do
+  @lorem_words String.split "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+  @word_count Enum.count @lorem_words
+
+  def words(n_words) when n_words <= 0, do: []
+  def words(n_words) when n_words <= @word_count, do: Enum.take(@lorem_words, n_words)
+  def words(n_words), do: Enum.concat(Enum.take(@lorem_words, @word_count), words(n_words - @word_count))
+end
+
 defmodule RedditClone.Seeds do
   alias RedditClone.Repo
   alias RedditClone.User
@@ -20,6 +29,10 @@ defmodule RedditClone.Seeds do
 
   defp random(min, max) do
     :rand.uniform(max - min + 1) + (min - 1)
+  end
+
+  defp lorem_words(n_words) do
+    n_words |> Lorem.words |> Enum.join(" ")
   end
 
   defp find_last_user_number() do
@@ -55,7 +68,7 @@ defmodule RedditClone.Seeds do
   defp insert_post_with_text(i, post_user) do
     Repo.insert! %Post{
       title: "Post " <> to_string(i) <> " (with text)",
-      text: Elixilorem.words(random(10, 250)),
+      text: lorem_words(random(10, 250)),
       url: nil,
       user: post_user,
     }
@@ -63,7 +76,7 @@ defmodule RedditClone.Seeds do
 
   defp insert_comment(comment_user, post) do
     Repo.insert! %Comment{
-      text: Elixilorem.words(random(5, 100)),
+      text: lorem_words(random(5, 100)),
       user: comment_user,
       post: post,
     }
