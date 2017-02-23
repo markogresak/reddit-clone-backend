@@ -1,5 +1,7 @@
 # RedditClone
 
+[![Build Status](https://travis-ci.com/markogresak/reddit-clone-backend.svg?token=yBhQFGxVxxqqbo7xzCdE&branch=master)](https://travis-ci.com/markogresak/reddit-clone-backend)
+
 To start your Phoenix app:
 
   * Install dependencies with `mix deps.get`
