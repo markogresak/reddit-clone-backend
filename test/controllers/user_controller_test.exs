@@ -55,9 +55,10 @@ defmodule RedditClone.UserControllerTest do
         %{
           "id" => post.id,
           "title" => post.title,
-          "text" => post.text,
           "url" => post.url,
-          "user_id" => post.user_id,
+          "user_id" => user.id,
+          "comment_count" => RedditClone.Post.comment_count(post),
+          "rating" => RedditClone.Post.total_rating(post),
         }
       ],
       "comments" => []
@@ -76,17 +77,18 @@ defmodule RedditClone.UserControllerTest do
         %{
           "id" => post.id,
           "title" => post.title,
-          "text" => post.text,
           "url" => post.url,
-          "user_id" => post.user_id,
+          "user_id" => user.id,
+          "comment_count" => RedditClone.Post.comment_count(post),
+          "rating" => RedditClone.Post.total_rating(post),
         }
       ],
       "comments" => [
         %{
           "id" => comment.id,
           "text" => comment.text,
-          "user_id" => comment.user_id,
-          "post_id" => comment.post_id,
+          "user_id" => user.id,
+          "post_id" => post.id,
         }
       ]
     }

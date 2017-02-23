@@ -25,10 +25,15 @@ defmodule RedditClone.Seeds do
   alias RedditClone.User
   alias RedditClone.Post
   alias RedditClone.Comment
+  alias RedditClone.PostRating
   import Ecto.Query, only: [from: 2]
 
   defp random(min, max) do
     :rand.uniform(max - min + 1) + (min - 1)
+  end
+
+  defp random_boolean() do
+    :rand.uniform > 0.5
   end
 
   defp lorem_words(n_words) do
@@ -82,6 +87,14 @@ defmodule RedditClone.Seeds do
     }
   end
 
+  defp insert_post_rating(rating_user, post) do
+    Repo.insert! %PostRating{
+      rating: (if random_boolean(), do: 1, else: -1),
+      user: rating_user,
+      post: post
+    }
+  end
+
   def run() do
     IO.puts "This will generate 10 users and posts + comments. It will recursively search for usernames user{i}, which might be slow."
     user_input = String.trim(IO.gets "Are you sure you want to proceed? [y/n] ")
@@ -106,6 +119,19 @@ defmodule RedditClone.Seeds do
         if (number_of_comments > 0) do
           comment_user = Enum.random(users)
           Enum.map(1..number_of_comments, fn(_i) -> insert_comment(comment_user, post) end)
+        else
+          # return [] to avoid returning nil, which breaks Enum.flat_map
+          []
+        end
+      end)
+
+      IO.puts "Seeding post ratings"
+      # for each post, insert random number of ratings
+      _post_ratings = Enum.flat_map(posts, fn(post) ->
+        number_of_post_ratings = random(0, 50)
+        if (number_of_post_ratings > 0) do
+          post_rating_user = Enum.random(users)
+          Enum.map(1..number_of_post_ratings, fn(_i) -> insert_post_rating(post_rating_user, post) end)
         else
           # return [] to avoid returning nil, which breaks Enum.flat_map
           []

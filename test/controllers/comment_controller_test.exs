@@ -22,8 +22,8 @@ defmodule RedditClone.CommentControllerTest do
     assert json_response(conn, 200)["data"] == %{
       "id" => comment.id,
       "text" => comment.text,
-      "user_id" => comment.user_id,
-      "post_id" => comment.post_id,
+      "user_id" => comment_user.id,
+      "post_id" => post.id,
     }
   end
 

@@ -2,6 +2,7 @@ defmodule RedditClone.PostController do
   use RedditClone.Web, :controller
 
   alias RedditClone.Post
+  alias RedditClone.PostRating
 
   def index(conn, _params) do
     posts = Repo.all(Post)
@@ -53,8 +54,36 @@ defmodule RedditClone.PostController do
     send_resp(conn, :no_content, "")
   end
 
+  def rate_post(conn, %{"post_id" => post_id, "post_rating" => %{"rating" => rating}}) do
+    post = Repo.get(Post, post_id)
+
+    if post != nil do
+      post = preload_post_relations(post)
+      user = Guardian.Plug.current_resource(conn)
+      |> RedditClone.Repo.preload([:post_ratings])
+
+      changeset = PostRating.changeset(%PostRating{}, %{ rating: rating, post: post, user: user })
+      |> Ecto.Changeset.put_assoc(:post, post)
+      |> Ecto.Changeset.put_assoc(:user, user)
+
+      case Repo.insert_or_update(changeset) do
+        {:ok, post_rating} ->
+          render(conn, "post_rating.json", post_rating: post_rating)
+        {:error, changeset} ->
+          conn
+          |> put_status(:unprocessable_entity)
+          |> render(RedditClone.ChangesetView, "error.json", changeset: changeset)
+      end
+    else
+      conn
+      |> put_status(:not_found)
+      |> render("error.json", message: "Post with id #{post_id} not found.")
+    end
+  end
+
   defp preload_post_relations(post) do
     post
     |> Post.with_comments
+    |> Post.with_ratings
   end
 end

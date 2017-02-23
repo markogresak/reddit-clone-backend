@@ -7,6 +7,7 @@ defmodule RedditClone.User do
     field :password, :string, virtual: true
     has_many :posts, RedditClone.Post
     has_many :comments, RedditClone.Comment
+    has_many :post_ratings, RedditClone.PostRating, on_delete: :delete_all, on_replace: :delete
 
     timestamps()
   end
@@ -36,12 +37,20 @@ defmodule RedditClone.User do
 
   end
 
+  def find_user_post_rating(user) do
+    query = from pr in RedditClone.PostRating,
+            where: pr.user_id == ^user.id,
+            select: pr
+    RedditClone.Repo.one(query)
+  end
+
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:username])
+    |> cast_assoc(:post_ratings)
     |> validate_required([:username])
     |> unique_constraint(:username)
     |> validate_length(:username, min: 3)

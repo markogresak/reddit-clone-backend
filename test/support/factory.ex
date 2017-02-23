@@ -47,4 +47,20 @@ defmodule RedditClone.Factory do
       post: build(:post_with_url),
     }
   end
+
+  def post_rating_up_factory do
+    %RedditClone.PostRating{
+      rating: 1,
+      user: build(:user),
+      post: build(:post_with_url),
+    }
+  end
+
+  def post_rating_down_factory do
+    %RedditClone.PostRating{
+      rating: -1,
+      user: build(:user),
+      post: build(:post_with_url),
+    }
+  end
 end
