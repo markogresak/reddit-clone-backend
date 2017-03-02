@@ -29,5 +29,6 @@ defmodule RedditClone.Router do
     resources "/posts", PostController, only: [:create, :update, :delete]
     resources "/comments", CommentController, only: [:create, :update, :delete]
     put "/posts/:post_id/rate", PostController, :rate_post, as: :post_rate
+    put "/comments/:comment_id/rate", CommentController, :rate_comment, as: :comment_rate
   end
 end

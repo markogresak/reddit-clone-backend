@@ -2,6 +2,7 @@ defmodule RedditClone.CommentController do
   use RedditClone.Web, :controller
 
   alias RedditClone.Comment
+  alias RedditClone.CommentRating
 
   def show(conn, %{"id" => id}) do
     comment = Repo.get!(Comment, id)
@@ -46,5 +47,37 @@ defmodule RedditClone.CommentController do
     Repo.delete!(comment)
 
     send_resp(conn, :no_content, "")
+  end
+
+  def rate_comment(conn, %{"comment_id" => comment_id, "comment_rating" => %{"rating" => rating}}) do
+    comment = Repo.get(Comment, comment_id)
+
+    if comment != nil do
+      comment = preload_comment_relations(comment)
+      user = Guardian.Plug.current_resource(conn)
+      |> RedditClone.Repo.preload([:comment_ratings])
+
+      changeset = CommentRating.changeset(%CommentRating{}, %{ rating: rating, comment: comment, user: user })
+      |> Ecto.Changeset.put_assoc(:comment, comment)
+      |> Ecto.Changeset.put_assoc(:user, user)
+
+      case Repo.insert_or_update(changeset) do
+        {:ok, comment_rating} ->
+          render(conn, "comment_rating.json", comment_rating: comment_rating)
+        {:error, changeset} ->
+          conn
+          |> put_status(:unprocessable_entity)
+          |> render(RedditClone.ChangesetView, "error.json", changeset: changeset)
+      end
+    else
+      conn
+      |> put_status(:not_found)
+      |> render("error.json", message: "Comment with id #{comment_id} not found.")
+    end
+  end
+
+  defp preload_comment_relations(comment) do
+    comment
+    |> Comment.with_ratings
   end
 end

@@ -10,9 +10,26 @@ defmodule RedditClone.CommentView do
   end
 
   def render("comment.json", %{comment: comment}) do
-    %{id: comment.id,
+    %{
+      id: comment.id,
       text: comment.text,
       user_id: comment.user_id,
-      post_id: comment.post_id}
+      post_id: comment.post_id,
+      rating: RedditClone.Comment.total_rating(comment),
+    }
+  end
+
+  def render("comment_rating.json", %{comment_rating: comment_rating}) do
+    %{
+      data: %{
+        rating: comment_rating.rating
+      }
+    }
+  end
+
+  def render("error.json", %{message: message}) do
+    %{
+      error: %{message: message}
+    }
   end
 end

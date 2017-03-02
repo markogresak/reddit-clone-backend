@@ -8,6 +8,7 @@ defmodule RedditClone.User do
     has_many :posts, RedditClone.Post
     has_many :comments, RedditClone.Comment
     has_many :post_ratings, RedditClone.PostRating, on_delete: :delete_all, on_replace: :delete
+    has_many :comment_ratings, RedditClone.CommentRating, on_delete: :delete_all, on_replace: :delete
 
     timestamps()
   end
@@ -51,6 +52,7 @@ defmodule RedditClone.User do
     struct
     |> cast(params, [:username])
     |> cast_assoc(:post_ratings)
+    |> cast_assoc(:comment_ratings)
     |> validate_required([:username])
     |> unique_constraint(:username)
     |> validate_length(:username, min: 3)

@@ -3,14 +3,14 @@ defmodule RedditClone.Factory do
 
   def user_factory do
     %RedditClone.User{
-      username: "test_user",
+      username: sequence("test_user"),
       encrypted_password: Comeonin.Bcrypt.hashpwsalt("pass1234"),
     }
   end
 
   def user2_factory do
     %RedditClone.User{
-      username: "test_user_2",
+      username: sequence("test_user_2"),
       encrypted_password: Comeonin.Bcrypt.hashpwsalt("pass1234"),
     }
   end
@@ -61,6 +61,22 @@ defmodule RedditClone.Factory do
       rating: -1,
       user: build(:user),
       post: build(:post_with_url),
+    }
+  end
+
+  def comment_rating_up_factory do
+    %RedditClone.CommentRating{
+      rating: 1,
+      user: build(:user),
+      comment: build(:comment),
+    }
+  end
+
+  def comment_rating_down_factory do
+    %RedditClone.CommentRating{
+      rating: -1,
+      user: build(:user),
+      comment: build(:comment),
     }
   end
 end

@@ -87,6 +87,7 @@ defmodule RedditClone.UserControllerTest do
         %{
           "id" => comment.id,
           "text" => comment.text,
+          "rating" => 0,
           "user_id" => user.id,
           "post_id" => post.id,
         }

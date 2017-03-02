@@ -5,8 +5,21 @@ defmodule RedditClone.Comment do
     field :text, :string
     belongs_to :user, RedditClone.User
     belongs_to :post, RedditClone.Post
+    has_many :ratings, RedditClone.CommentRating, on_delete: :delete_all, on_replace: :delete
 
     timestamps()
+  end
+
+  def with_ratings(comment) do
+    comment
+    |> RedditClone.Repo.preload([:ratings])
+  end
+
+  def total_rating(comment) do
+    query = from cr in RedditClone.CommentRating,
+            where: cr.comment_id == ^comment.id,
+            select: sum(cr.rating)
+    RedditClone.Repo.one(query) || 0
   end
 
   @doc """
@@ -15,6 +28,7 @@ defmodule RedditClone.Comment do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:text])
+    |> cast_assoc(:ratings)
     |> validate_required([:text])
     |> validate_length(:text, min: 1)
   end
