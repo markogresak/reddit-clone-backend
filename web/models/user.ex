@@ -29,7 +29,7 @@ defmodule RedditClone.User do
     if changeset.valid? do
       %{username: username, password: password} = changeset.changes
       user = RedditClone.Repo.get_by(RedditClone.User, username: username)
-      if Comeonin.Bcrypt.checkpw(password, user.encrypted_password) do
+      if user && Comeonin.Bcrypt.checkpw(password, user.encrypted_password) do
         {:ok, user}
       else
         {:error, %{}}
