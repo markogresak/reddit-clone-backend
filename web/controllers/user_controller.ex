@@ -13,7 +13,7 @@ defmodule RedditClone.UserController do
         new_conn
         |> put_resp_header("authorization", "Bearer #{jwt}")
         |> render("login.json", user: preload_user_relations(user), jwt: jwt, exp: exp)
-      {:error, _changeset} ->
+      _ ->
         conn
         |> put_status(401)
         |> render("error.json", message: "Could not login")
