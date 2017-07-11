@@ -41,6 +41,7 @@ defmodule RedditClone.Mixfile do
      {:guardian, "~> 0.14"},
      {:mix_test_watch, "~> 0.3", only: :dev, runtime: false},
      {:cors_plug, "~> 1.2"},
+     {:bureaucrat, "~> 0.1.4"},
    ]
   end
 

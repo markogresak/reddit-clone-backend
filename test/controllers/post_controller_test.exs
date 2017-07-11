@@ -15,13 +15,17 @@ defmodule RedditClone.PostControllerTest do
 
   test "lists all entries on index", %{conn: conn} do
     conn = get conn, post_path(conn, :index)
+
     assert json_response(conn, 200)["data"] == []
+
+    doc(conn)
   end
 
   test "shows post with text", %{conn: conn} do
     user = insert(:user)
     post = insert(:post_with_text, user: user)
     conn = get conn, post_path(conn, :show, post)
+
     assert json_response(conn, 200)["data"] == %{
       "id" => post.id,
       "title" => post.title,
@@ -39,6 +43,7 @@ defmodule RedditClone.PostControllerTest do
     user = insert(:user)
     post = insert(:post_with_url, user: user)
     conn = get conn, post_path(conn, :show, post)
+
     assert json_response(conn, 200)["data"] == %{
       "id" => post.id,
       "title" => post.title,
@@ -77,6 +82,8 @@ defmodule RedditClone.PostControllerTest do
       "comment_count" => RedditClone.Post.comment_count(post),
       "rating" => RedditClone.Post.total_rating(post),
     }
+
+    doc(conn)
   end
 
   test "renders page not found when id is nonexistent", %{conn: conn} do
@@ -87,12 +94,16 @@ defmodule RedditClone.PostControllerTest do
 
   test "creates and renders resource when data is valid", %{auth_conn: conn} do
     conn = post conn, post_path(conn, :create), post: @valid_attrs
+
     assert json_response(conn, 201)["data"]["id"]
     assert Repo.get_by(Post, title: @valid_attrs.title)
+
+    doc(conn)
   end
 
   test "does not create resource and renders errors when data is invalid", %{auth_conn: conn} do
     conn = post conn, post_path(conn, :create), post: @invalid_attrs
+
     assert json_response(conn, 422)["errors"] != %{}
   end
 
@@ -100,14 +111,18 @@ defmodule RedditClone.PostControllerTest do
     user = insert(:user)
     post = insert(:post_with_url, user: user)
     conn = put conn, post_path(conn, :update, post), post: @valid_attrs
+
     assert json_response(conn, 200)["data"]["id"]
     assert Repo.get_by(Post, title: @valid_attrs.title)
+
+    doc(conn)
   end
 
   test "does not update chosen resource and renders errors when data is invalid", %{auth_conn: conn} do
     user = insert(:user)
     post = insert(:post_with_url, user: user)
     conn = put conn, post_path(conn, :update, post), post: @invalid_attrs
+
     assert json_response(conn, 422)["errors"] != %{}
   end
 
@@ -115,8 +130,11 @@ defmodule RedditClone.PostControllerTest do
     user = insert(:user)
     post = insert(:post_with_url, user: user)
     conn = delete conn, post_path(conn, :delete, post)
+
     assert response(conn, 204)
     refute Repo.get(Post, post.id)
+
+    doc(conn)
   end
 
   test "rate post", %{auth_conn: conn} do
@@ -125,6 +143,7 @@ defmodule RedditClone.PostControllerTest do
     post = insert(:post_with_url, user: post_user)
     _rating = insert(:post_rating_up, user: rating_user, post: post)
     conn = get conn, post_path(conn, :show, post)
+
     assert json_response(conn, 200)["data"] == %{
       "id" => post.id,
       "title" => post.title,
@@ -136,11 +155,16 @@ defmodule RedditClone.PostControllerTest do
       "comment_count" => 0,
       "rating" => 1,
     }
+
+    doc(conn)
   end
 
   test "rate nonexistent post", %{auth_conn: conn} do
     rate_conn = put conn, post_rate_path(conn, :rate_post, 0, %{post_rating: %{rating: 1}})
+
     assert json_response(rate_conn, 404)["errors"] != %{}
+
+    doc(rate_conn)
   end
 
   test "add positive post rating", %{auth_conn: conn} do
@@ -220,6 +244,7 @@ defmodule RedditClone.PostControllerTest do
       "post_rating" => RedditClone.Post.total_rating(post),
     }
     post_conn = get conn, post_path(conn, :show, post)
+
     assert json_response(post_conn, 200)["data"]["rating"] == expected_total
   end
 end

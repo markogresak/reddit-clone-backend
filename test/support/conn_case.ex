@@ -27,6 +27,7 @@ defmodule RedditClone.ConnCase do
       import RedditClone.Factory
 
       import RedditClone.Router.Helpers
+      import Bureaucrat.Helpers
 
       # The default endpoint for testing
       @endpoint RedditClone.Endpoint

@@ -21,19 +21,24 @@ defmodule RedditClone.UserControllerTest do
       "id" => user.id,
       "username" => user.username,
     }
+
     assert json_response(conn, 200)["data"]["jwt"]
     assert json_response(conn, 200)["data"]["exp"]
+
+    doc(conn)
   end
 
   test "login with wrong password", %{conn: conn} do
     user = insert(:user)
     conn = post conn, user_path(conn, :login, %{username: user.username, password: "wrong_pass"})
+
     assert json_response(conn, 401)["error"]
   end
 
   test "shows chosen user", %{auth_conn: conn} do
     user = insert(:user)
     conn = get conn, user_path(conn, :show, user)
+
     assert json_response(conn, 200)["data"] == %{
       "id" => user.id,
       "username" => user.username,
@@ -46,6 +51,7 @@ defmodule RedditClone.UserControllerTest do
     user = insert(:user)
     post = insert(:post_with_text, user: user)
     conn = get conn, user_path(conn, :show, user)
+
     assert json_response(conn, 200)["data"] == %{
       "id" => user.id,
       "username" => user.username,
@@ -69,6 +75,7 @@ defmodule RedditClone.UserControllerTest do
     post = insert(:post_with_text, user: user)
     comment = insert(:comment, user: user, post: post)
     conn = get conn, user_path(conn, :show, user)
+
     assert json_response(conn, 200)["data"] == %{
       "id" => user.id,
       "username" => user.username,
@@ -93,6 +100,8 @@ defmodule RedditClone.UserControllerTest do
         }
       ]
     }
+
+    doc(conn)
   end
 
   test "renders page not found when id is nonexistent", %{conn: conn} do
@@ -103,32 +112,43 @@ defmodule RedditClone.UserControllerTest do
 
   test "creates and renders resource when data is valid", %{auth_conn: conn} do
     conn = post conn, user_path(conn, :create), user: @valid_attrs
+
     assert json_response(conn, 201)["data"]["id"]
     assert Repo.get_by(User, username: @valid_attrs.username)
+
+    doc(conn)
   end
 
   test "does not create resource and renders errors when data is invalid", %{auth_conn: conn} do
     conn = post conn, user_path(conn, :create), user: @invalid_attrs
+
     assert json_response(conn, 422)["errors"] != %{}
   end
 
   test "updates and renders chosen resource when data is valid", %{auth_conn: conn} do
     user = insert(:user)
     conn = put conn, user_path(conn, :update, user), user: @valid_attrs
+
     assert json_response(conn, 200)["data"]["id"]
     assert Repo.get_by(User, username: @valid_attrs.username)
+
+    doc(conn)
   end
 
   test "does not update chosen resource and renders errors when data is invalid", %{auth_conn: conn} do
     user = insert(:user)
     conn = put conn, user_path(conn, :update, user), user: @invalid_attrs
+
     assert json_response(conn, 422)["errors"] != %{}
   end
 
   test "deletes chosen resource", %{auth_conn: conn} do
     user = insert(:user)
     conn = delete conn, user_path(conn, :delete, user)
+
     assert response(conn, 204)
     refute Repo.get(User, user.id)
+
+    doc(conn)
   end
 end

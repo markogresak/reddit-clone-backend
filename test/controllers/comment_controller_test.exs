@@ -19,6 +19,7 @@ defmodule RedditClone.CommentControllerTest do
     post = insert(:post_with_url, user: post_user)
     comment = insert(:comment, user: comment_user, post: post)
     conn = get conn, comment_path(conn, :show, comment)
+
     assert json_response(conn, 200)["data"] == %{
       "id" => comment.id,
       "text" => comment.text,
@@ -26,16 +27,22 @@ defmodule RedditClone.CommentControllerTest do
       "user_id" => comment_user.id,
       "post_id" => post.id,
     }
+
+    doc(conn)
   end
 
   test "creates and renders resource when data is valid", %{auth_conn: conn} do
     conn = post conn, comment_path(conn, :create), comment: @valid_attrs
+
     assert json_response(conn, 201)["data"]["id"]
     assert Repo.get_by(Comment, @valid_attrs)
+
+    doc(conn)
   end
 
   test "does not create resource and renders errors when data is invalid", %{auth_conn: conn} do
     conn = post conn, comment_path(conn, :create), comment: @invalid_attrs
+
     assert json_response(conn, 422)["errors"] != %{}
   end
 
@@ -45,8 +52,11 @@ defmodule RedditClone.CommentControllerTest do
     post = insert(:post_with_url, user: post_user)
     comment = insert(:comment, user: comment_user, post: post)
     conn = put conn, comment_path(conn, :update, comment), comment: @valid_attrs
+
     assert json_response(conn, 200)["data"]["id"]
     assert Repo.get_by(Comment, @valid_attrs)
+
+    doc(conn)
   end
 
   test "does not update chosen resource and renders errors when data is invalid", %{auth_conn: conn} do
@@ -55,6 +65,7 @@ defmodule RedditClone.CommentControllerTest do
     post = insert(:post_with_url, user: post_user)
     comment = insert(:comment, user: comment_user, post: post)
     conn = put conn, comment_path(conn, :update, comment), comment: @invalid_attrs
+
     assert json_response(conn, 422)["errors"] != %{}
   end
 
@@ -64,8 +75,11 @@ defmodule RedditClone.CommentControllerTest do
     post = insert(:post_with_url, user: post_user)
     comment = insert(:comment, user: comment_user, post: post)
     conn = delete conn, comment_path(conn, :delete, comment)
+
     assert response(conn, 204)
     refute Repo.get(Comment, comment.id)
+
+    doc(conn)
   end
 
   test "rate comment", %{auth_conn: conn} do
@@ -75,6 +89,7 @@ defmodule RedditClone.CommentControllerTest do
     comment = insert(:comment, user: comment_user, post: post)
     _rating = insert(:comment_rating_up, user: rating_user, comment: comment)
     conn = get conn, comment_path(conn, :show, comment)
+
     assert json_response(conn, 200)["data"] == %{
       "id" => comment.id,
       "text" => comment.text,
@@ -82,11 +97,16 @@ defmodule RedditClone.CommentControllerTest do
       "post_id" => post.id,
       "user_id" => comment_user.id,
     }
+
+    doc(conn)
   end
 
   test "rate nonexistent comment", %{auth_conn: conn} do
     rate_conn = put conn, comment_rate_path(conn, :rate_comment, 0, %{comment_rating: %{rating: 1}})
+
     assert json_response(rate_conn, 404)["errors"] != %{}
+
+    doc(rate_conn)
   end
 
   test "add positive comment rating", %{auth_conn: conn} do
@@ -104,6 +124,7 @@ defmodule RedditClone.CommentControllerTest do
   test "add invalid comment rating", %{auth_conn: conn} do
     rating_user = insert(:user)
     %{rate_conn: rate_conn} = add_comment_rating(conn, rating_user, 5)
+
     assert json_response(rate_conn, 422)["errors"] != %{}
   end
 
@@ -166,6 +187,7 @@ defmodule RedditClone.CommentControllerTest do
       "rating" => expected_rating
     }
     comment_conn = get conn, comment_path(conn, :show, comment)
+
     assert json_response(comment_conn, 200)["data"]["rating"] == expected_total
   end
 end
