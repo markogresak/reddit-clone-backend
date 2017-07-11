@@ -47,13 +47,16 @@ defmodule RedditClone.PostController do
   end
 
   def delete(conn, %{"id" => id}) do
-    post = Repo.get!(Post, id)
+    post = Repo.get(Post, id)
 
-    # Here we use delete! (with a bang) because we expect
-    # it to always work (and if it does not, it will raise).
-    Repo.delete!(post)
-
-    send_resp(conn, :no_content, "")
+    if post != nil do
+      Repo.delete(post)
+      send_resp(conn, :no_content, "")
+    else
+      conn
+      |> put_status(:not_found)
+      |> render("error.json", message: "Post with id #{id} not found.")
+    end
   end
 
   def rate_post(conn, %{"post_id" => post_id, "post_rating" => %{"rating" => rating}}) do
