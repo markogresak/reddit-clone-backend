@@ -20,8 +20,6 @@ defmodule RedditClone.UserControllerTest do
     assert json_response(conn, 200)["data"]["user"] == %{
       "id" => user.id,
       "username" => user.username,
-      "posts" => [],
-      "comments" => []
     }
     assert json_response(conn, 200)["data"]["jwt"]
     assert json_response(conn, 200)["data"]["exp"]

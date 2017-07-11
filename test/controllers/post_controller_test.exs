@@ -215,7 +215,9 @@ defmodule RedditClone.PostControllerTest do
     response_code \\ 200
   ) do
     assert json_response(rate_conn, response_code)["data"] == %{
-      "rating" => expected_rating
+      "rating" => expected_rating,
+      "post_id" => post.id,
+      "post_rating" => RedditClone.Post.total_rating(post),
     }
     post_conn = get conn, post_path(conn, :show, post)
     assert json_response(post_conn, 200)["data"]["rating"] == expected_total

@@ -18,10 +18,17 @@ defmodule RedditClone.UserView do
     }
   end
 
+  def render("user-shallow.json", %{user: user}) do
+    %{
+      id: user.id,
+      username: user.username,
+    }
+  end
+
   def render("login.json", %{user: user, jwt: jwt, exp: exp}) do
     %{
       data: %{
-        user: render_one(user, RedditClone.UserView, "user.json"),
+        user: render_one(user, RedditClone.UserView, "user-shallow.json"),
         jwt: jwt,
         exp: exp
       }

@@ -31,10 +31,12 @@ defmodule RedditClone.PostView do
     |> Map.merge(post_comments)
   end
 
-  def render("post_rating.json", %{post_rating: post_rating}) do
+  def render("post_rating.json", %{post_rating: post_rating, post: post}) do
     %{
       data: %{
-        rating: post_rating.rating
+        rating: post_rating.rating,
+        post_id: post.id,
+        post_rating: RedditClone.Post.total_rating(post),
       }
     }
   end

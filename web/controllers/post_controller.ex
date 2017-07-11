@@ -10,7 +10,9 @@ defmodule RedditClone.PostController do
   end
 
   def create(conn, %{"post" => post_params}) do
-    changeset = Post.changeset(%Post{}, post_params)
+    user = Guardian.Plug.current_resource(conn)
+    changeset = Post.changeset(%Post{}, Map.merge(post_params, %{"user_id" => user.id}))
+    |> Ecto.Changeset.put_assoc(:user, user)
 
     case Repo.insert(changeset) do
       {:ok, post} ->
@@ -68,7 +70,7 @@ defmodule RedditClone.PostController do
 
       case Repo.insert_or_update(changeset) do
         {:ok, post_rating} ->
-          render(conn, "post_rating.json", post_rating: post_rating)
+          render(conn, "post_rating.json", post_rating: post_rating, post: post)
         {:error, changeset} ->
           conn
           |> put_status(:unprocessable_entity)
