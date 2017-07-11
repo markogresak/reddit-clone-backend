@@ -28,6 +28,7 @@ defmodule RedditClone.PostControllerTest do
       "text" => post.text,
       "url" => nil,
       "user_id" => user.id,
+      "submitted_at" => NaiveDateTime.to_iso8601(post.inserted_at),
       "comments" => [],
       "comment_count" => RedditClone.Post.comment_count(post),
       "rating" => RedditClone.Post.total_rating(post),
@@ -44,6 +45,7 @@ defmodule RedditClone.PostControllerTest do
       "text" => nil,
       "url" => post.url,
       "user_id" => user.id,
+      "submitted_at" => NaiveDateTime.to_iso8601(post.inserted_at),
       "comments" => [],
       "comment_count" => RedditClone.Post.comment_count(post),
       "rating" => RedditClone.Post.total_rating(post),
@@ -62,6 +64,7 @@ defmodule RedditClone.PostControllerTest do
       "text" => nil,
       "url" => post.url,
       "user_id" => post_user.id,
+      "submitted_at" => NaiveDateTime.to_iso8601(post.inserted_at),
       "comments" => [
         %{
           "id" => comment.id,
@@ -128,6 +131,7 @@ defmodule RedditClone.PostControllerTest do
       "text" => nil,
       "url" => post.url,
       "user_id" => post_user.id,
+      "submitted_at" => NaiveDateTime.to_iso8601(post.inserted_at),
       "comments" => [],
       "comment_count" => 0,
       "rating" => 1,

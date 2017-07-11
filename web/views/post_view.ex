@@ -17,6 +17,7 @@ defmodule RedditClone.PostView do
       user_id: post.user_id,
       comment_count: RedditClone.Post.comment_count(post),
       rating: RedditClone.Post.total_rating(post),
+      submitted_at: post.inserted_at,
     }
   end
 

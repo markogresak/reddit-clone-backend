@@ -57,6 +57,7 @@ defmodule RedditClone.UserControllerTest do
           "title" => post.title,
           "url" => post.url,
           "user_id" => user.id,
+          "submitted_at" => NaiveDateTime.to_iso8601(post.inserted_at),
           "comment_count" => RedditClone.Post.comment_count(post),
           "rating" => RedditClone.Post.total_rating(post),
         }
@@ -79,6 +80,7 @@ defmodule RedditClone.UserControllerTest do
           "title" => post.title,
           "url" => post.url,
           "user_id" => user.id,
+          "submitted_at" => NaiveDateTime.to_iso8601(post.inserted_at),
           "comment_count" => RedditClone.Post.comment_count(post),
           "rating" => RedditClone.Post.total_rating(post),
         }
