@@ -51,6 +51,8 @@ defmodule RedditClone.User do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:username])
+    |> cast_assoc(:posts)
+    |> cast_assoc(:comments)
     |> cast_assoc(:post_ratings)
     |> cast_assoc(:comment_ratings)
     |> validate_required([:username])

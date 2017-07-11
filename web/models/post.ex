@@ -39,6 +39,7 @@ defmodule RedditClone.Post do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:title])
+    |> cast_assoc(:comments)
     |> cast_assoc(:ratings)
     |> validate_required([:title])
     |> validate_length(:title, min: 1)
