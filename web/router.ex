@@ -6,9 +6,9 @@ defmodule RedditClone.Router do
   end
 
   pipeline :api_auth do
-    plug Guardian.Plug.VerifyHeader
+    plug Guardian.Plug.VerifyHeader, realm: "Bearer"
     plug Guardian.Plug.LoadResource
-    plug Guardian.Plug.EnsureAuthenticated
+    plug Guardian.Plug.EnsureAuthenticated, handler: RedditClone.ApiAuthErrorHandlerController
   end
 
   scope "/api", RedditClone do
