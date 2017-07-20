@@ -12,7 +12,7 @@ defmodule RedditClone.UserController do
         exp = Map.get(claims, "exp")
         new_conn
         |> put_resp_header("authorization", "Bearer #{jwt}")
-        |> render("login.json", user: preload_user_relations(user), jwt: jwt, exp: exp)
+        |> render("login.json", user: User.preloaded(user), jwt: jwt, exp: exp)
       _ ->
         conn
         |> put_status(401)
@@ -36,7 +36,7 @@ defmodule RedditClone.UserController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", user_path(conn, :show, user))
-        |> render("show.json", user: preload_user_relations(user))
+        |> render("show.json", user: User.preloaded(user))
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -46,7 +46,7 @@ defmodule RedditClone.UserController do
 
   def show(conn, %{"id" => id}) do
     user = Repo.get!(User, id)
-    render(conn, "show.json", user: preload_user_relations(user))
+    render(conn, "show.json", user: User.preloaded(user))
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
@@ -55,7 +55,7 @@ defmodule RedditClone.UserController do
 
     case Repo.update(changeset) do
       {:ok, user} ->
-        render(conn, "show.json", user: preload_user_relations(user))
+        render(conn, "show.json", user: User.preloaded(user))
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -71,11 +71,5 @@ defmodule RedditClone.UserController do
     Repo.delete!(user)
 
     send_resp(conn, :no_content, "")
-  end
-
-  defp preload_user_relations(user) do
-    user
-    |> User.with_posts
-    |> User.with_comments
   end
 end

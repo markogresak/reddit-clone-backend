@@ -24,7 +24,10 @@ defmodule RedditClone.CommentControllerTest do
       "id" => comment.id,
       "text" => comment.text,
       "rating" => 0,
-      "user_id" => comment_user.id,
+      "user" => %{
+        "id" => comment_user.id,
+        "username" => comment_user.username,
+      },
       "post_id" => post.id,
     }
 
@@ -95,7 +98,10 @@ defmodule RedditClone.CommentControllerTest do
       "text" => comment.text,
       "rating" => 1,
       "post_id" => post.id,
-      "user_id" => comment_user.id,
+      "user" => %{
+        "id" => comment_user.id,
+        "username" => comment_user.username,
+      },
     }
 
     doc(conn)

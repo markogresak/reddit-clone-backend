@@ -6,18 +6,20 @@ defmodule RedditClone.CommentController do
 
   def show(conn, %{"id" => id}) do
     comment = Repo.get!(Comment, id)
-    render(conn, "show.json", comment: comment)
+    render(conn, "show.json", comment: Comment.preloaded(comment))
   end
 
   def create(conn, %{"comment" => comment_params}) do
-    changeset = Comment.changeset(%Comment{}, comment_params)
+    user = Guardian.Plug.current_resource(conn)
+    changeset = Comment.changeset(%Comment{}, Map.merge(comment_params, %{"user_id" => user.id}))
+    |> Ecto.Changeset.put_assoc(:user, user)
 
     case Repo.insert(changeset) do
       {:ok, comment} ->
         conn
         |> put_status(:created)
         |> put_resp_header("location", comment_path(conn, :show, comment))
-        |> render("show.json", comment: comment)
+        |> render("show.json", comment: Comment.preloaded(comment))
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -31,7 +33,7 @@ defmodule RedditClone.CommentController do
 
     case Repo.update(changeset) do
       {:ok, comment} ->
-        render(conn, "show.json", comment: comment)
+        render(conn, "show.json", comment: Comment.preloaded(comment))
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -53,7 +55,7 @@ defmodule RedditClone.CommentController do
     comment = Repo.get(Comment, comment_id)
 
     if comment != nil do
-      comment = preload_comment_relations(comment)
+      comment = Comment.preloaded(comment)
       user = Guardian.Plug.current_resource(conn)
       |> RedditClone.Repo.preload([:comment_ratings])
 
@@ -74,10 +76,5 @@ defmodule RedditClone.CommentController do
       |> put_status(:not_found)
       |> render("error.json", message: "Comment with id #{comment_id} not found.")
     end
-  end
-
-  defp preload_comment_relations(comment) do
-    comment
-    |> Comment.with_ratings
   end
 end

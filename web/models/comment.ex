@@ -15,6 +15,17 @@ defmodule RedditClone.Comment do
     |> RedditClone.Repo.preload([:ratings])
   end
 
+  def with_users(comment) do
+    comment
+    |> RedditClone.Repo.preload([:user])
+  end
+
+  def preloaded(comment) do
+    comment
+    |> with_ratings
+    |> with_users
+  end
+
   def total_rating(comment) do
     query = from cr in RedditClone.CommentRating,
             where: cr.comment_id == ^comment.id,

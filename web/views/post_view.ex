@@ -14,7 +14,10 @@ defmodule RedditClone.PostView do
       id: post.id,
       title: post.title,
       url: post.url,
-      user_id: post.user_id,
+      user: %{
+        id: post.user.id,
+        username: post.user.username,
+      },
       comment_count: RedditClone.Post.comment_count(post),
       rating: RedditClone.Post.total_rating(post),
       submitted_at: post.inserted_at,

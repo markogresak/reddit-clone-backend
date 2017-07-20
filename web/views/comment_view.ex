@@ -13,7 +13,10 @@ defmodule RedditClone.CommentView do
     %{
       id: comment.id,
       text: comment.text,
-      user_id: comment.user_id,
+      user: %{
+        id: comment.user.id,
+        username: comment.user.username,
+      },
       post_id: comment.post_id,
       rating: RedditClone.Comment.total_rating(comment),
     }

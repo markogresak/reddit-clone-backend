@@ -31,7 +31,10 @@ defmodule RedditClone.PostControllerTest do
       "title" => post.title,
       "text" => post.text,
       "url" => nil,
-      "user_id" => user.id,
+      "user" => %{
+        "id" => user.id,
+        "username" => user.username,
+      },
       "submitted_at" => NaiveDateTime.to_iso8601(post.inserted_at),
       "comments" => [],
       "comment_count" => RedditClone.Post.comment_count(post),
@@ -49,7 +52,10 @@ defmodule RedditClone.PostControllerTest do
       "title" => post.title,
       "text" => nil,
       "url" => post.url,
-      "user_id" => user.id,
+      "user" => %{
+        "id" => user.id,
+        "username" => user.username,
+      },
       "submitted_at" => NaiveDateTime.to_iso8601(post.inserted_at),
       "comments" => [],
       "comment_count" => RedditClone.Post.comment_count(post),
@@ -68,14 +74,20 @@ defmodule RedditClone.PostControllerTest do
       "title" => post.title,
       "text" => nil,
       "url" => post.url,
-      "user_id" => post_user.id,
+      "user" => %{
+        "id" => post_user.id,
+        "username" => post_user.username,
+      },
       "submitted_at" => NaiveDateTime.to_iso8601(post.inserted_at),
       "comments" => [
         %{
           "id" => comment.id,
           "text" => comment.text,
           "rating" => 0,
-          "user_id" => comment_user.id,
+          "user" => %{
+            "id" => comment_user.id,
+            "username" => comment_user.username,
+          },
           "post_id" => post.id,
         }
       ],
@@ -149,7 +161,10 @@ defmodule RedditClone.PostControllerTest do
       "title" => post.title,
       "text" => nil,
       "url" => post.url,
-      "user_id" => post_user.id,
+      "user" => %{
+        "id" => post_user.id,
+        "username" => post_user.username,
+      },
       "submitted_at" => NaiveDateTime.to_iso8601(post.inserted_at),
       "comments" => [],
       "comment_count" => 0,

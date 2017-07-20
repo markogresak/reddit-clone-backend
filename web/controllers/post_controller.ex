@@ -6,7 +6,7 @@ defmodule RedditClone.PostController do
 
   def index(conn, _params) do
     posts = Repo.all(Post)
-    render(conn, "index.json", posts: Enum.map(posts, &preload_post_relations/1))
+    render(conn, "index.json", posts: Enum.map(posts, &Post.preloaded/1))
   end
 
   def create(conn, %{"post" => post_params}) do
@@ -19,7 +19,7 @@ defmodule RedditClone.PostController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", post_path(conn, :show, post))
-        |> render("show.json", post: preload_post_relations(post))
+        |> render("show.json", post: Post.preloaded(post))
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -29,7 +29,7 @@ defmodule RedditClone.PostController do
 
   def show(conn, %{"id" => id}) do
     post = Repo.get!(Post, id)
-    render(conn, "show.json", post: preload_post_relations(post))
+    render(conn, "show.json", post: Post.preloaded(post))
   end
 
   def update(conn, %{"id" => id, "post" => post_params}) do
@@ -38,7 +38,7 @@ defmodule RedditClone.PostController do
 
     case Repo.update(changeset) do
       {:ok, post} ->
-        render(conn, "show.json", post: preload_post_relations(post))
+        render(conn, "show.json", post: Post.preloaded(post))
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -63,7 +63,7 @@ defmodule RedditClone.PostController do
     post = Repo.get(Post, post_id)
 
     if post != nil do
-      post = preload_post_relations(post)
+      post = Post.preloaded(post)
       user = Guardian.Plug.current_resource(conn)
       |> RedditClone.Repo.preload([:post_ratings])
 
@@ -84,11 +84,5 @@ defmodule RedditClone.PostController do
       |> put_status(:not_found)
       |> render("error.json", message: "Post with id #{post_id} not found.")
     end
-  end
-
-  defp preload_post_relations(post) do
-    post
-    |> Post.with_comments
-    |> Post.with_ratings
   end
 end

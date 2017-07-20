@@ -1,6 +1,9 @@
 defmodule RedditClone.User do
   use RedditClone.Web, :model
 
+  alias RedditClone.Post
+  alias RedditClone.Comment
+
   schema "users" do
     field :username, :string
     field :encrypted_password, :string
@@ -21,6 +24,19 @@ defmodule RedditClone.User do
   def with_comments(user) do
     user
     |> RedditClone.Repo.preload([:comments])
+  end
+
+  def preloaded(user) do
+    preloaded_user =
+      user
+      |> with_posts
+      |> with_comments
+
+    preloaded_user
+      |> Map.merge(%{
+        posts: Enum.map(preloaded_user.posts, &Post.preloaded/1),
+        comments: Enum.map(preloaded_user.comments, &Comment.preloaded/1),
+      })
   end
 
   def find_and_confirm_password(params) do

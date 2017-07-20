@@ -1,6 +1,8 @@
 defmodule RedditClone.Post do
   use RedditClone.Web, :model
 
+  alias RedditClone.Comment
+
   schema "posts" do
     field :title, :string
     field :text, :string
@@ -20,6 +22,24 @@ defmodule RedditClone.Post do
   def with_ratings(post) do
     post
     |> RedditClone.Repo.preload([:ratings])
+  end
+
+  def with_users(post) do
+    post
+    |> RedditClone.Repo.preload([:user])
+  end
+
+  def preloaded(post) do
+    preloaded_post =
+      post
+      |> with_comments
+      |> with_ratings
+      |> with_users
+
+    preloaded_post
+      |> Map.merge(%{
+        comments: Enum.map(preloaded_post.comments, &Comment.preloaded/1),
+      })
   end
 
   def comment_count(post) do
