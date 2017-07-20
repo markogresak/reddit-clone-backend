@@ -10,20 +10,9 @@ defmodule RedditClone.Comment do
     timestamps()
   end
 
-  def with_ratings(comment) do
-    comment
-    |> RedditClone.Repo.preload([:ratings])
-  end
-
-  def with_users(comment) do
-    comment
-    |> RedditClone.Repo.preload([:user])
-  end
-
   def preloaded(comment) do
     comment
-    |> with_ratings
-    |> with_users
+    |> RedditClone.Repo.preload([:user, :ratings])
   end
 
   def total_rating(comment) do

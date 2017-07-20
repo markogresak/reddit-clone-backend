@@ -3,6 +3,7 @@ defmodule RedditClone.PostController do
 
   alias RedditClone.Post
   alias RedditClone.PostRating
+  alias RedditClone.User
 
   def index(conn, _params) do
     posts = Repo.all(Post)
@@ -65,7 +66,7 @@ defmodule RedditClone.PostController do
     if post != nil do
       post = Post.preloaded(post)
       user = Guardian.Plug.current_resource(conn)
-      |> RedditClone.Repo.preload([:post_ratings])
+      |> User.with_post_ratings
 
       changeset = PostRating.changeset(%PostRating{}, %{ rating: rating, post: post, user: user })
       |> Ecto.Changeset.put_assoc(:post, post)

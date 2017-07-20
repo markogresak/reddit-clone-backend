@@ -3,6 +3,7 @@ defmodule RedditClone.CommentController do
 
   alias RedditClone.Comment
   alias RedditClone.CommentRating
+  alias RedditClone.User
 
   def show(conn, %{"id" => id}) do
     comment = Repo.get!(Comment, id)
@@ -57,7 +58,7 @@ defmodule RedditClone.CommentController do
     if comment != nil do
       comment = Comment.preloaded(comment)
       user = Guardian.Plug.current_resource(conn)
-      |> RedditClone.Repo.preload([:comment_ratings])
+      |> User.with_comment_ratings
 
       changeset = CommentRating.changeset(%CommentRating{}, %{ rating: rating, comment: comment, user: user })
       |> Ecto.Changeset.put_assoc(:comment, comment)
