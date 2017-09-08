@@ -6,7 +6,7 @@ defmodule RedditClone.PostController do
   alias RedditClone.User
 
   def index(conn, _params) do
-    posts = Repo.all(Post)
+    posts = Repo.all(Post |> order_by([p], desc: p.updated_at))
     render(conn, "index.json", posts: Enum.map(posts, &Post.preloaded/1))
   end
 
