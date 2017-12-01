@@ -11,6 +11,7 @@ config :reddit_clone,
 
 # Configures the endpoint
 config :reddit_clone, RedditClone.Endpoint,
+  http: [compress: true],
   url: [host: "localhost"],
   secret_key_base: "ZxQB/fx7OgNjirBNWY8nNoaLu1Wehk+R2TphM5mlK+ht9TOsS0YQSB41FkbCuY9w",
   render_errors: [view: RedditClone.ErrorView, accepts: ~w(json)],
