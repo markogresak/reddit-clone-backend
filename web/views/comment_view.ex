@@ -19,6 +19,7 @@ defmodule RedditClone.CommentView do
       },
       post_id: comment.post_id,
       rating: RedditClone.Comment.total_rating(comment),
+      parent_comment_id: comment.parent_comment_id,
     }
   end
 

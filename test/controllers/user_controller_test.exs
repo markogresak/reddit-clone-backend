@@ -106,6 +106,7 @@ defmodule RedditClone.UserControllerTest do
             "username" => user.username,
           },
           "post_id" => post.id,
+          "parent_comment_id" => nil,
         }
       ]
     }

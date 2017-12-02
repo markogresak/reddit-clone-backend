@@ -4,6 +4,7 @@ defmodule RedditClone.CommentController do
   alias RedditClone.Comment
   alias RedditClone.CommentRating
   alias RedditClone.User
+  alias RedditClone.Post
 
   def show(conn, %{"id" => id}) do
     comment = Repo.get!(Comment, id)
@@ -14,6 +15,16 @@ defmodule RedditClone.CommentController do
     user = Guardian.Plug.current_resource(conn)
     changeset = Comment.changeset(%Comment{}, Map.merge(comment_params, %{"user_id" => user.id}))
     |> Ecto.Changeset.put_assoc(:user, user)
+    |> Ecto.Changeset.put_assoc(:post, Repo.get!(Post, comment_params["post_id"]))
+    |> (fn (changeset) ->
+      case Map.has_key?(comment_params, "parent_comment_id") do
+        true ->
+          parent_comment = Repo.get!(Comment, comment_params["parent_comment_id"])
+          Ecto.Changeset.put_assoc(changeset, :parent_comment, parent_comment)
+        false ->
+          changeset
+      end
+    end).()
 
     case Repo.insert(changeset) do
       {:ok, comment} ->

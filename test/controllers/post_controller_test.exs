@@ -89,6 +89,7 @@ defmodule RedditClone.PostControllerTest do
             "username" => comment_user.username,
           },
           "post_id" => post.id,
+          "parent_comment_id" => nil,
         }
       ],
       "comment_count" => RedditClone.Post.comment_count(post),

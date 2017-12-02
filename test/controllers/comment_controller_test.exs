@@ -10,7 +10,7 @@ defmodule RedditClone.CommentControllerTest do
     user = insert(:user_login)
     auth_conn = Guardian.Plug.api_sign_in(conn, user)
     jwt = Guardian.Plug.current_token(auth_conn)
-    {:ok, %{conn: conn, auth_conn: auth_conn, jwt: jwt}}
+    {:ok, %{conn: conn, auth_conn: auth_conn, jwt: jwt, user: user}}
   end
 
   test "shows chosen resource", %{conn: conn} do
@@ -29,13 +29,19 @@ defmodule RedditClone.CommentControllerTest do
         "username" => comment_user.username,
       },
       "post_id" => post.id,
+      "parent_comment_id" => nil,
     }
 
     doc(conn)
   end
 
   test "creates and renders resource when data is valid", %{auth_conn: conn} do
-    conn = post conn, comment_path(conn, :create), comment: @valid_attrs
+    post_user = insert(:user)
+    post = insert(:post_with_url, user: post_user)
+
+    conn = post conn, comment_path(conn, :create), comment: Map.merge(@valid_attrs, %{
+      "post_id" => post.id,
+    })
 
     assert json_response(conn, 201)["data"]["id"]
     assert Repo.get_by(Comment, @valid_attrs)
@@ -44,9 +50,45 @@ defmodule RedditClone.CommentControllerTest do
   end
 
   test "does not create resource and renders errors when data is invalid", %{auth_conn: conn} do
-    conn = post conn, comment_path(conn, :create), comment: @invalid_attrs
+    post_user = insert(:user)
+    post = insert(:post_with_url, user: post_user)
+
+    conn = post conn, comment_path(conn, :create), comment: Map.merge(@invalid_attrs, %{
+      "post_id" => post.id,
+    })
 
     assert json_response(conn, 422)["errors"] != %{}
+  end
+
+  test "creates a nested comment", %{auth_conn: conn, user: user} do
+    post_user = insert(:user)
+    post = insert(:post_with_url, user: post_user)
+
+    parent_comment_user = insert(:user2)
+    parent_comment = insert(:comment, user: parent_comment_user, post: post)
+
+    conn = post conn, comment_path(conn, :create), comment: %{
+      "text" => "nested comment",
+      "post_id" => post.id,
+      "parent_comment_id" => parent_comment.id,
+    }
+
+    # remove id key, there is no way to determine the id value to compare in `assert`.
+    data = json_response(conn, 201)["data"]
+    |> Map.delete("id")
+
+    assert data == %{
+      "text" => "nested comment",
+      "rating" => 0,
+      "user" => %{
+        "id" => user.id,
+        "username" => user.username,
+      },
+      "post_id" => post.id,
+      "parent_comment_id" => parent_comment.id,
+    }
+
+    doc(conn)
   end
 
   test "updates and renders chosen resource when data is valid", %{auth_conn: conn} do
@@ -102,6 +144,7 @@ defmodule RedditClone.CommentControllerTest do
         "id" => comment_user.id,
         "username" => comment_user.username,
       },
+      "parent_comment_id" => nil,
     }
 
     doc(conn)

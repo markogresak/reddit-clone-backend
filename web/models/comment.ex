@@ -5,6 +5,7 @@ defmodule RedditClone.Comment do
     field :text, :string
     belongs_to :user, RedditClone.User
     belongs_to :post, RedditClone.Post
+    belongs_to :parent_comment, RedditClone.Comment
     has_many :ratings, RedditClone.CommentRating, on_delete: :delete_all, on_replace: :delete
 
     timestamps()
