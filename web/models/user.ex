@@ -43,13 +43,6 @@ defmodule RedditClone.User do
 
   end
 
-  def find_user_post_rating(user) do
-    query = from pr in RedditClone.PostRating,
-            where: pr.user_id == ^user.id,
-            select: pr
-    RedditClone.Repo.one(query)
-  end
-
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """

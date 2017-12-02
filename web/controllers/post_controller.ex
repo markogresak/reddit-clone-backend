@@ -7,7 +7,8 @@ defmodule RedditClone.PostController do
 
   def index(conn, _params) do
     posts = Repo.all(Post |> order_by([p], desc: p.updated_at))
-    render(conn, "index.json", posts: Enum.map(posts, &Post.preloaded/1))
+    conn
+    |> render("index.json", posts: Enum.map(posts, &Post.preloaded/1), current_user: Guardian.Plug.current_resource(conn))
   end
 
   def create(conn, %{"post" => post_params}) do
@@ -20,7 +21,7 @@ defmodule RedditClone.PostController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", post_path(conn, :show, post))
-        |> render("show.json", post: Post.preloaded(post))
+        |> render("show.json", post: Post.preloaded(post), current_user: user)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -30,20 +31,28 @@ defmodule RedditClone.PostController do
 
   def show(conn, %{"id" => id}) do
     post = Repo.get!(Post, id)
-    render(conn, "show.json", post: Post.preloaded(post))
+    conn
+    |> render("show.json", post: Post.preloaded(post), current_user: Guardian.Plug.current_resource(conn))
   end
 
   def update(conn, %{"id" => id, "post" => post_params}) do
+    user = Guardian.Plug.current_resource(conn)
     post = Repo.get!(Post, id)
-    changeset = Post.changeset(post, post_params)
+    if user.id != post.user_id do
+      conn
+      |> put_status(:bad_request)
+      |> render("error.json", message: "You are not the author of this post.")
+    else
+      changeset = Post.changeset(post, post_params)
 
-    case Repo.update(changeset) do
-      {:ok, post} ->
-        render(conn, "show.json", post: Post.preloaded(post))
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(RedditClone.ChangesetView, "error.json", changeset: changeset)
+      case Repo.update(changeset) do
+        {:ok, post} ->
+          render(conn, "show.json", post: Post.preloaded(post), current_user: user)
+        {:error, changeset} ->
+          conn
+          |> put_status(:unprocessable_entity)
+          |> render(RedditClone.ChangesetView, "error.json", changeset: changeset)
+      end
     end
   end
 
@@ -68,9 +77,7 @@ defmodule RedditClone.PostController do
       user = Guardian.Plug.current_resource(conn)
       |> User.with_post_ratings
 
-      user_post_rating = Repo.get_by(PostRating, post_id: post.id, user_id: user.id)
-
-      if user_post_rating != nil do
+      if PostRating.find_user_post_rating(user, post) != nil do
         conn
         |> put_status(:bad_request)
         |> render("error.json", message: "You have already rated this post.")

@@ -3,11 +3,11 @@ defmodule RedditClone.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug Guardian.Plug.VerifyHeader, realm: "Bearer"
+    plug Guardian.Plug.LoadResource
   end
 
   pipeline :api_auth do
-    plug Guardian.Plug.VerifyHeader, realm: "Bearer"
-    plug Guardian.Plug.LoadResource
     plug Guardian.Plug.EnsureAuthenticated, handler: RedditClone.ApiAuthErrorHandlerController
   end
 

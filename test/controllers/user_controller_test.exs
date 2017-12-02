@@ -67,6 +67,7 @@ defmodule RedditClone.UserControllerTest do
           "submitted_at" => NaiveDateTime.to_iso8601(post.inserted_at),
           "comment_count" => RedditClone.Post.comment_count(post),
           "rating" => RedditClone.Post.total_rating(post),
+          "user_post_rating" => nil,
         }
       ],
       "comments" => []
@@ -94,6 +95,7 @@ defmodule RedditClone.UserControllerTest do
           "submitted_at" => NaiveDateTime.to_iso8601(post.inserted_at),
           "comment_count" => RedditClone.Post.comment_count(post),
           "rating" => RedditClone.Post.total_rating(post),
+          "user_post_rating" => nil,
         }
       ],
       "comments" => [

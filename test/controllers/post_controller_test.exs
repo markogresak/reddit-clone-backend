@@ -39,6 +39,7 @@ defmodule RedditClone.PostControllerTest do
       "comments" => [],
       "comment_count" => RedditClone.Post.comment_count(post),
       "rating" => RedditClone.Post.total_rating(post),
+      "user_post_rating" => nil,
     }
   end
 
@@ -60,6 +61,7 @@ defmodule RedditClone.PostControllerTest do
       "comments" => [],
       "comment_count" => RedditClone.Post.comment_count(post),
       "rating" => RedditClone.Post.total_rating(post),
+      "user_post_rating" => nil,
     }
   end
 
@@ -95,6 +97,7 @@ defmodule RedditClone.PostControllerTest do
       ],
       "comment_count" => RedditClone.Post.comment_count(post),
       "rating" => RedditClone.Post.total_rating(post),
+      "user_post_rating" => nil,
     }
 
     doc(conn)
@@ -124,9 +127,10 @@ defmodule RedditClone.PostControllerTest do
   test "updates and renders chosen resource when data is valid", %{auth_conn: conn} do
     user = insert(:user)
     post = insert(:post_with_url, user: user)
-    conn = put conn, post_path(conn, :update, post), post: @valid_attrs
+    post_user_conn = Guardian.Plug.api_sign_in(conn, user)
+    |> put(post_path(conn, :update, post), post: @valid_attrs)
 
-    assert json_response(conn, 200)["data"]["id"]
+    assert json_response(post_user_conn, 200)["data"]["id"]
     assert Repo.get_by(Post, title: @valid_attrs.title)
 
     doc(conn)
@@ -135,9 +139,10 @@ defmodule RedditClone.PostControllerTest do
   test "does not update chosen resource and renders errors when data is invalid", %{auth_conn: conn} do
     user = insert(:user)
     post = insert(:post_with_url, user: user)
-    conn = put conn, post_path(conn, :update, post), post: @invalid_attrs
+    post_user_conn = Guardian.Plug.api_sign_in(conn, user)
+    |> put(post_path(conn, :update, post), post: @invalid_attrs)
 
-    assert json_response(conn, 422)["errors"] != %{}
+    assert json_response(post_user_conn, 422)["errors"] != %{}
   end
 
   test "deletes chosen resource", %{auth_conn: conn} do
@@ -156,9 +161,10 @@ defmodule RedditClone.PostControllerTest do
     rating_user = insert(:user2)
     post = insert(:post_with_url, user: post_user)
     _rating = insert(:post_rating_up, user: rating_user, post: post)
-    conn = get conn, post_path(conn, :show, post)
+    rating_user_conn = Guardian.Plug.api_sign_in(conn, rating_user)
+    |> get(post_path(conn, :show, post))
 
-    assert json_response(conn, 200)["data"] == %{
+    assert json_response(rating_user_conn, 200)["data"] == %{
       "id" => post.id,
       "title" => post.title,
       "text" => nil,
@@ -171,6 +177,7 @@ defmodule RedditClone.PostControllerTest do
       "comments" => [],
       "comment_count" => 0,
       "rating" => 1,
+      "user_post_rating" => 1,
     }
 
     doc(conn)
