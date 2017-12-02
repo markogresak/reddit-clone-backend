@@ -36,7 +36,7 @@ defmodule RedditClone.Endpoint do
     key: "_reddit_clone_key",
     signing_salt: "yVx9yhQM"
 
-  plug CORSPlug
+  plug CORSPlug, [origin: "http://localhost:8080"]
 
   plug RedditClone.Router
 end
