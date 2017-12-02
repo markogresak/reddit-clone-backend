@@ -93,6 +93,7 @@ defmodule RedditClone.PostControllerTest do
           "post_id" => post.id,
           "parent_comment_id" => nil,
           "submitted_at" => NaiveDateTime.to_iso8601(comment.inserted_at),
+          "user_comment_rating" => nil,
         }
       ],
       "comment_count" => RedditClone.Post.comment_count(post),
@@ -133,7 +134,7 @@ defmodule RedditClone.PostControllerTest do
     assert json_response(post_user_conn, 200)["data"]["id"]
     assert Repo.get_by(Post, title: @valid_attrs.title)
 
-    doc(conn)
+    doc(post_user_conn)
   end
 
   test "does not update chosen resource and renders errors when data is invalid", %{auth_conn: conn} do
@@ -180,7 +181,7 @@ defmodule RedditClone.PostControllerTest do
       "user_post_rating" => 1,
     }
 
-    doc(conn)
+    doc(rating_user_conn)
   end
 
   test "rate nonexistent post", %{auth_conn: conn} do

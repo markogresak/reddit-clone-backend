@@ -9,7 +9,7 @@ defmodule RedditClone.UserView do
     %{
       id: user.id,
       username: user.username,
-      comments: render_many(user.comments, RedditClone.CommentView, "comment.json"),
+      comments: render_many(user.comments, RedditClone.CommentView, "comment.json", current_user: current_user),
       posts: render_many(user.posts, RedditClone.PostView, "post-shallow.json", current_user: current_user)
     }
   end

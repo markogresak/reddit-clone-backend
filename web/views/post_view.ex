@@ -28,7 +28,7 @@ defmodule RedditClone.PostView do
   def render("post.json", %{post: post, current_user: current_user}) do
     post_comments = %{
       text: post.text,
-      comments: render_many(post.comments, RedditClone.CommentView, "comment.json"),
+      comments: render_many(post.comments, RedditClone.CommentView, "comment.json", current_user: current_user),
     }
 
     render_one(post, RedditClone.PostView, "post-shallow.json", current_user: current_user)

@@ -31,6 +31,7 @@ defmodule RedditClone.CommentControllerTest do
       "post_id" => post.id,
       "parent_comment_id" => nil,
       "submitted_at" => NaiveDateTime.to_iso8601(comment.inserted_at),
+      "user_comment_rating" => nil,
     }
 
     doc(conn)
@@ -88,6 +89,7 @@ defmodule RedditClone.CommentControllerTest do
       "post_id" => post.id,
       "parent_comment_id" => parent_comment.id,
       "submitted_at" => NaiveDateTime.to_iso8601(comment.inserted_at),
+      "user_comment_rating" => nil,
     }
 
     doc(conn)
@@ -98,12 +100,13 @@ defmodule RedditClone.CommentControllerTest do
     comment_user = insert(:user2)
     post = insert(:post_with_url, user: post_user)
     comment = insert(:comment, user: comment_user, post: post)
-    conn = put conn, comment_path(conn, :update, comment), comment: @valid_attrs
+    comment_user_conn = Guardian.Plug.api_sign_in(conn, comment_user)
+    |> put(comment_path(conn, :update, comment), comment: @valid_attrs)
 
-    assert json_response(conn, 200)["data"]["id"]
+    assert json_response(comment_user_conn, 200)["data"]["id"]
     assert Repo.get_by(Comment, @valid_attrs)
 
-    doc(conn)
+    doc(comment_user_conn)
   end
 
   test "does not update chosen resource and renders errors when data is invalid", %{auth_conn: conn} do
@@ -111,9 +114,10 @@ defmodule RedditClone.CommentControllerTest do
     comment_user = insert(:user2)
     post = insert(:post_with_url, user: post_user)
     comment = insert(:comment, user: comment_user, post: post)
-    conn = put conn, comment_path(conn, :update, comment), comment: @invalid_attrs
+    comment_user_conn = Guardian.Plug.api_sign_in(conn, comment_user)
+    |> put(comment_path(conn, :update, comment), comment: @invalid_attrs)
 
-    assert json_response(conn, 422)["errors"] != %{}
+    assert json_response(comment_user_conn, 422)["errors"] != %{}
   end
 
   test "deletes chosen resource", %{auth_conn: conn} do
@@ -121,12 +125,13 @@ defmodule RedditClone.CommentControllerTest do
     comment_user = insert(:user2)
     post = insert(:post_with_url, user: post_user)
     comment = insert(:comment, user: comment_user, post: post)
-    conn = delete conn, comment_path(conn, :delete, comment)
+    comment_user_conn = Guardian.Plug.api_sign_in(conn, comment_user)
+    |> delete(comment_path(conn, :delete, comment))
 
-    assert response(conn, 204)
+    assert response(comment_user_conn, 204)
     refute Repo.get(Comment, comment.id)
 
-    doc(conn)
+    doc(comment_user_conn)
   end
 
   test "rate comment", %{auth_conn: conn} do
@@ -135,9 +140,10 @@ defmodule RedditClone.CommentControllerTest do
     post = insert(:post_with_url, user: comment_user)
     comment = insert(:comment, user: comment_user, post: post)
     _rating = insert(:comment_rating_up, user: rating_user, comment: comment)
-    conn = get conn, comment_path(conn, :show, comment)
+    rating_user_conn = Guardian.Plug.api_sign_in(conn, rating_user)
+    |> get(comment_path(conn, :show, comment))
 
-    assert json_response(conn, 200)["data"] == %{
+    assert json_response(rating_user_conn, 200)["data"] == %{
       "id" => comment.id,
       "text" => comment.text,
       "rating" => 1,
@@ -148,9 +154,10 @@ defmodule RedditClone.CommentControllerTest do
       },
       "parent_comment_id" => nil,
       "submitted_at" => NaiveDateTime.to_iso8601(comment.inserted_at),
+      "user_comment_rating" => 1,
     }
 
-    doc(conn)
+    doc(rating_user_conn)
   end
 
   test "rate nonexistent comment", %{auth_conn: conn} do
