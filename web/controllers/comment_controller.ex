@@ -71,25 +71,22 @@ defmodule RedditClone.CommentController do
       user = Guardian.Plug.current_resource(conn)
       |> User.with_comment_ratings
 
-      user_comment_rating = Repo.get_by(CommentRating, comment_id: comment.id, user_id: user.id)
+      # Remove all previous ratings.
+      from(pr in RedditClone.CommentRating,
+        where: pr.user_id == ^user.id and pr.comment_id == ^comment.id)
+      |> Repo.delete_all
 
-      if user_comment_rating != nil do
-        conn
-        |> put_status(:bad_request)
-        |> render("error.json", message: "You have already rated this comment.")
-      else
-        changeset = CommentRating.changeset(%CommentRating{}, %{ rating: rating, comment: comment, user: user })
-        |> Ecto.Changeset.put_assoc(:comment, comment)
-        |> Ecto.Changeset.put_assoc(:user, user)
+      changeset = CommentRating.changeset(%CommentRating{}, %{ rating: rating, comment: comment, user: user })
+      |> Ecto.Changeset.put_assoc(:comment, comment)
+      |> Ecto.Changeset.put_assoc(:user, user)
 
-        case Repo.insert_or_update(changeset) do
-          {:ok, comment_rating} ->
-            render(conn, "comment_rating.json", comment_rating: comment_rating)
-          {:error, changeset} ->
-            conn
-            |> put_status(:unprocessable_entity)
-            |> render(RedditClone.ChangesetView, "error.json", changeset: changeset)
-        end
+      case Repo.insert_or_update(changeset) do
+        {:ok, comment_rating} ->
+          render(conn, "comment_rating.json", comment_rating: comment_rating)
+        {:error, changeset} ->
+          conn
+          |> put_status(:unprocessable_entity)
+          |> render(RedditClone.ChangesetView, "error.json", changeset: changeset)
       end
     else
       conn
