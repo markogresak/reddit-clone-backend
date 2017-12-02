@@ -90,6 +90,7 @@ defmodule RedditClone.PostControllerTest do
           },
           "post_id" => post.id,
           "parent_comment_id" => nil,
+          "submitted_at" => NaiveDateTime.to_iso8601(comment.inserted_at),
         }
       ],
       "comment_count" => RedditClone.Post.comment_count(post),

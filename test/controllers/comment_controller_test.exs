@@ -30,6 +30,7 @@ defmodule RedditClone.CommentControllerTest do
       },
       "post_id" => post.id,
       "parent_comment_id" => nil,
+      "submitted_at" => NaiveDateTime.to_iso8601(comment.inserted_at),
     }
 
     doc(conn)
@@ -73,11 +74,11 @@ defmodule RedditClone.CommentControllerTest do
       "parent_comment_id" => parent_comment.id,
     }
 
-    # remove id key, there is no way to determine the id value to compare in `assert`.
     data = json_response(conn, 201)["data"]
-    |> Map.delete("id")
+    comment = Repo.get!(Comment, data["id"])
 
     assert data == %{
+      "id" => comment.id,
       "text" => "nested comment",
       "rating" => 0,
       "user" => %{
@@ -86,6 +87,7 @@ defmodule RedditClone.CommentControllerTest do
       },
       "post_id" => post.id,
       "parent_comment_id" => parent_comment.id,
+      "submitted_at" => NaiveDateTime.to_iso8601(comment.inserted_at),
     }
 
     doc(conn)
@@ -145,6 +147,7 @@ defmodule RedditClone.CommentControllerTest do
         "username" => comment_user.username,
       },
       "parent_comment_id" => nil,
+      "submitted_at" => NaiveDateTime.to_iso8601(comment.inserted_at),
     }
 
     doc(conn)
