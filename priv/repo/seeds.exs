@@ -21,11 +21,7 @@ defmodule Lorem do
 end
 
 defmodule RedditClone.Seeds do
-  alias RedditClone.Repo
-  alias RedditClone.User
-  alias RedditClone.Post
-  alias RedditClone.Comment
-  alias RedditClone.PostRating
+  alias RedditClone.{Repo, User, Post, Comment, PostRating, CommentRating}
   import Ecto.Query, only: [from: 2]
 
   defp random(min, max) do
@@ -89,11 +85,25 @@ defmodule RedditClone.Seeds do
   end
 
   defp insert_post_rating(rating_user, post) do
-    Repo.insert! %PostRating{
-      rating: (if random_boolean(), do: 1, else: -1),
-      user: rating_user,
-      post: post
-    }
+    user_post_rating = Repo.get_by(PostRating, user_id: rating_user.id, post_id: post.id)
+    if user_post_rating == nil do
+      Repo.insert! %PostRating{
+        rating: (if random_boolean(), do: 1, else: -1),
+        user: rating_user,
+        post: post
+      }
+    end
+  end
+
+  defp insert_comment_rating(rating_user, comment) do
+    user_comment_rating = Repo.get_by(CommentRating, user_id: rating_user.id, comment_id: comment.id)
+    if user_comment_rating == nil do
+      Repo.insert! %CommentRating{
+        rating: (if random_boolean(), do: 1, else: -1),
+        user: rating_user,
+        comment: comment
+      }
+    end
   end
 
   defp seed_nested_comments(users, post, parent_comment, nesting_depth) do
@@ -101,7 +111,7 @@ defmodule RedditClone.Seeds do
       IO.puts "Seeding nested comments (depth=#{nesting_depth})"
       number_of_comments = random(0, 4)
       if (number_of_comments > 0) do
-        Enum.map(1..number_of_comments, fn(_i) ->
+        Enum.flat_map(1..number_of_comments, fn(_i) ->
           comment_user = Enum.random(users)
           comment = insert_comment(comment_user, post, parent_comment)
           seed_nested_comments(users, post, comment, nesting_depth - 1)
@@ -135,10 +145,10 @@ defmodule RedditClone.Seeds do
 
       IO.puts "Seeding comments"
       # for each post, insert random number of comments
-      _comments = Enum.flat_map(posts, fn(post) ->
+      comments = Enum.flat_map(posts, fn(post) ->
         number_of_comments = random(0, 10)
         if (number_of_comments > 0) do
-          Enum.map(1..number_of_comments, fn(_i) ->
+          Enum.flat_map(1..number_of_comments, fn(_i) ->
             comment_user = Enum.random(users)
             comment = insert_comment(comment_user, post, nil)
             Enum.concat([comment], seed_nested_comments(users, post, comment, random(0, 3)))
@@ -154,8 +164,19 @@ defmodule RedditClone.Seeds do
       _post_ratings = Enum.flat_map(posts, fn(post) ->
         number_of_post_ratings = random(0, 50)
         if (number_of_post_ratings > 0) do
-          post_rating_user = Enum.random(users)
-          Enum.map(1..number_of_post_ratings, fn(_i) -> insert_post_rating(post_rating_user, post) end)
+          Enum.map(1..number_of_post_ratings, fn(_i) -> insert_post_rating(Enum.random(users), post) end)
+        else
+          # return [] to avoid returning nil, which breaks Enum.flat_map
+          []
+        end
+      end)
+
+      IO.puts "Seeding comment ratings"
+      # for each comment, insert random number of ratings
+      _comment_ratings = Enum.flat_map(Enum.take_random(comments, 100), fn(comment) ->
+        number_of_comment_ratings = random(0, 10)
+        if (number_of_comment_ratings > 0) do
+          Enum.map(1..number_of_comment_ratings, fn(_i) -> insert_comment_rating(Enum.random(users), comment) end)
         else
           # return [] to avoid returning nil, which breaks Enum.flat_map
           []
