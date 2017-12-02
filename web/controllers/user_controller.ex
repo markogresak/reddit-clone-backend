@@ -20,14 +20,6 @@ defmodule RedditClone.UserController do
     end
   end
 
-  def logout(conn, _params) do
-    # jwt = Guardian.Plug.current_token(conn)
-    # claims = Guardian.Plug.claims(conn)
-    # Guardian.revoke!(jwt, claims)
-    Guardian.Plug.sign_out(conn)
-    |> send_resp(:no_content, "")
-  end
-
   def create(conn, %{"user" => user_params}) do
     changeset = User.registration_changeset(%User{}, user_params)
 

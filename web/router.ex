@@ -24,7 +24,6 @@ defmodule RedditClone.Router do
     pipe_through :api
     pipe_through :api_auth
 
-    post "/logout", UserController, :logout
     resources "/users", UserController, only: [:update, :delete]
     resources "/posts", PostController, only: [:create, :update, :delete]
     resources "/comments", CommentController, only: [:create, :update, :delete]
