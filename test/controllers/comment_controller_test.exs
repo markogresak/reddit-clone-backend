@@ -222,7 +222,8 @@ defmodule RedditClone.CommentControllerTest do
     post_user = insert(:user2)
     post = insert(:post_with_url, user: post_user)
     rated_comment = if comment == nil, do: insert(:comment, user: rating_user, post: post), else: comment
-    rate_conn = put conn, comment_rate_path(conn, :rate_comment, rated_comment.id, %{comment_rating: %{rating: rating_value}})
+    rating_user_conn = Guardian.Plug.api_sign_in(conn, rating_user)
+    rate_conn = put rating_user_conn, comment_rate_path(conn, :rate_comment, rated_comment.id, %{comment_rating: %{rating: rating_value}})
     %{
       rate_conn: rate_conn,
       comment: rated_comment,

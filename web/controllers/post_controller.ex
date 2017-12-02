@@ -68,17 +68,25 @@ defmodule RedditClone.PostController do
       user = Guardian.Plug.current_resource(conn)
       |> User.with_post_ratings
 
-      changeset = PostRating.changeset(%PostRating{}, %{ rating: rating, post: post, user: user })
-      |> Ecto.Changeset.put_assoc(:post, post)
-      |> Ecto.Changeset.put_assoc(:user, user)
+      user_post_rating = Repo.get_by(PostRating, post_id: post.id, user_id: user.id)
 
-      case Repo.insert_or_update(changeset) do
-        {:ok, post_rating} ->
-          render(conn, "post_rating.json", post_rating: post_rating, post: post)
-        {:error, changeset} ->
-          conn
-          |> put_status(:unprocessable_entity)
-          |> render(RedditClone.ChangesetView, "error.json", changeset: changeset)
+      if user_post_rating != nil do
+        conn
+        |> put_status(:bad_request)
+        |> render("error.json", message: "You have already rated this post.")
+      else
+        changeset = PostRating.changeset(%PostRating{}, %{ rating: rating, post: post, user: user })
+        |> Ecto.Changeset.put_assoc(:post, post)
+        |> Ecto.Changeset.put_assoc(:user, user)
+
+        case Repo.insert_or_update(changeset) do
+          {:ok, post_rating} ->
+            render(conn, "post_rating.json", post_rating: post_rating, post: post)
+          {:error, changeset} ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> render(RedditClone.ChangesetView, "error.json", changeset: changeset)
+        end
       end
     else
       conn

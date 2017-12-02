@@ -242,7 +242,8 @@ defmodule RedditClone.PostControllerTest do
 
   defp add_post_rating(conn, rating_user, rating_value, post \\ nil) do
     rated_post = if post == nil, do: insert(:post_with_url, user: rating_user), else: post
-    rate_conn = put conn, post_rate_path(conn, :rate_post, rated_post.id, %{post_rating: %{rating: rating_value}})
+    rating_user_conn = Guardian.Plug.api_sign_in(conn, rating_user)
+    rate_conn = put rating_user_conn, post_rate_path(conn, :rate_post, rated_post.id, %{post_rating: %{rating: rating_value}})
     %{
       rate_conn: rate_conn,
       post: rated_post,
