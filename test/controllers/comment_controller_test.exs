@@ -244,7 +244,9 @@ defmodule RedditClone.CommentControllerTest do
     response_code \\ 200
   ) do
     assert json_response(rate_conn, response_code)["data"] == %{
-      "rating" => expected_rating
+      "rating" => expected_rating,
+      "comment_id" => comment.id,
+      "comment_rating" => RedditClone.Comment.total_rating(comment),
     }
     comment_conn = get conn, comment_path(conn, :show, comment)
 

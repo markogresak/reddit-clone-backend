@@ -100,7 +100,7 @@ defmodule RedditClone.CommentController do
 
       case Repo.insert_or_update(changeset) do
         {:ok, comment_rating} ->
-          render(conn, "comment_rating.json", comment_rating: comment_rating)
+          render(conn, "comment_rating.json", comment_rating: comment_rating, comment: comment)
         {:error, changeset} ->
           conn
           |> put_status(:unprocessable_entity)

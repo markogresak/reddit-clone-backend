@@ -21,10 +21,12 @@ defmodule RedditClone.CommentView do
     }
   end
 
-  def render("comment_rating.json", %{comment_rating: comment_rating}) do
+  def render("comment_rating.json", %{comment_rating: comment_rating, comment: comment}) do
     %{
       data: %{
-        rating: comment_rating.rating
+        rating: comment_rating.rating,
+        comment_id: comment.id,
+        comment_rating: RedditClone.Comment.total_rating(comment),
       }
     }
   end
