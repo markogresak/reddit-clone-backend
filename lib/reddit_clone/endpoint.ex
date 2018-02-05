@@ -37,7 +37,7 @@ defmodule RedditClone.Endpoint do
     signing_salt: "yVx9yhQM"
 
   # Match origin localhost:[port], gresak.io (and all subdomains) or markogresak.github.io
-  plug CORSPlug, origin: ~r/(http:\/\/localhost:\d+$|https?.*gresak\.io$|https:\/\/markogresak\.github\.io$)/
+  plug CORSPlug, origin: ~r/(http:\/\/localhost:\d+$|https?.*gresak\.io$|https?:\/\/reddit-clone-(react|elm).gresak.io.s3-website-eu-west-1.amazonaws.com$|https:\/\/markogresak\.github\.io$)/
 
   plug RedditClone.Router
 end
