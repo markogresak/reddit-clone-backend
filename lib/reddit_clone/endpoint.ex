@@ -36,7 +36,8 @@ defmodule RedditClone.Endpoint do
     key: "_reddit_clone_key",
     signing_salt: "yVx9yhQM"
 
-  plug CORSPlug, [origin: ["http://localhost:8000", "http://localhost:8080", "https://markogresak.github.io"]]
+  # Match origin localhost:[port], gresak.io (and all subdomains) or markogresak.github.io
+  plug CORSPlug, origin: ~r/(http:\/\/localhost:\d+$|https?.*gresak\.io$|https:\/\/markogresak\.github\.io$)/
 
   plug RedditClone.Router
 end
