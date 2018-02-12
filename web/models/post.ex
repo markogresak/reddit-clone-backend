@@ -36,10 +36,17 @@ defmodule RedditClone.Post do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:title])
+    |> cast(params, [:title, :url, :text])
     |> cast_assoc(:comments)
     |> cast_assoc(:ratings)
     |> validate_required([:title])
+    |> validate_required_inclusion([:url, :text])
     |> validate_length(:title, min: 1)
+  end
+
+  defp validate_required_inclusion(changeset, fields) do
+    if Enum.any?(fields, fn(field) -> get_field(changeset, field) end),
+      do: changeset,
+      else: add_error(changeset, hd(fields), "One of these fields must be present: #{inspect fields}")
   end
 end
