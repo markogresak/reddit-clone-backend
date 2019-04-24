@@ -1,5 +1,7 @@
 # RedditClone
 
+> This project is a part of my [bachelor's thesis](http://eprints.fri.uni-lj.si/4111/).
+
 [![Build Status](https://travis-ci.com/markogresak/reddit-clone-backend.svg?token=yBhQFGxVxxqqbo7xzCdE&branch=master)](https://travis-ci.com/markogresak/reddit-clone-backend)
 
 ### Running the app
